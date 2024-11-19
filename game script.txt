@@ -1,0 +1,23 @@
+game script:
+
+- base story:
+	Detective goes to a crime scene: husband dead, wife alive and says she found him dead.
+	She is the killer.
+	3 different endings: 
+		- You find the needed evidence (1)
+		- You didnt find enough evidence and she goes free (2)
+		- You keep blaming her which results into her going crazy and trying to kill you.
+			- if you took the knife on the counter before while talking to her, you live. (3)
+			- if you didnt, you die. (4)
+
+
+Choices in a nutshell:
+	- search for evidence
+	- talk to witness
+	- able to link -> interrogation at police station
+				- Find enough evidence: she gets caught (1)
+				- Not enough: goes free (2)
+	- not -> She goes free (2)
+	- Blame her:
+		- if you got rid of the knife, she attacks you but nothing happens (3)
+		- if you didnt, she attacks you and succeeds (4)
