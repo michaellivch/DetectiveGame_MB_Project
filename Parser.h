@@ -1,0 +1,10 @@
+//
+// Created by jeremi on 15/01/25.
+//
+
+#ifndef DETECTIVEGAME_MB_PROJECT_PARSER_H
+#define DETECTIVEGAME_MB_PROJECT_PARSER_H
+
+class Parser {};
+
+#endif // DETECTIVEGAME_MB_PROJECT_PARSER_H
