@@ -26,15 +26,6 @@ std::vector<Token> tokenize(const std::string& input);
 // CFG-based parser class
 class CFGParser {
 public:
-    // Lower case for input handling
-    std::string toLowerCase(const std::string& str);
-
-    // Calculate Levenshtein distance
-    int levenshteinDistance(const std::string& s1, const std::string& s2);
-
-    // Get similarity percentage
-    double similarityPercentage(const std::string& s1, const std::string& s2);
-
     std::vector<GrammarRule> grammarRules;  // Set of grammar rules
     std::map<std::string, std::vector<std::vector<std::string>>> grammarMap; // Efficient grammar lookup
 };

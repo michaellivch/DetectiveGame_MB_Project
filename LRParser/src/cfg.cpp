@@ -1,4 +1,4 @@
-#include "cfg.h"
+#include "../include/cfg.h"
 
 #include <algorithm>
 #include <sstream>

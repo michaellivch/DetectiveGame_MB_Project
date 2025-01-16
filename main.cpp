@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "./CFG/cfg.h"
+#include "./LRParser/include/cfg.h"
 
 int main() {
   // Define grammar rules
