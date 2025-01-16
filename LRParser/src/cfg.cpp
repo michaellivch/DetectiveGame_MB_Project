@@ -44,13 +44,16 @@ std::vector<Token> tokenize(const std::string& input) {
         {"interrogate", ACTION}, {"examine", ACTION}, {"accuse", ACTION},
         {"suspect", TARGET}, {"evidence", TARGET},
         {"about", PREPOSITION}, {"regarding", PREPOSITION},
-        {".", TERMINAL_PUNCTUATION}, {"!", TERMINAL_PUNCTUATION}, {"?", TERMINAL_PUNCTUATION}
+        {".", TERMINAL_PUNCTUATION}, {"!", TERMINAL_PUNCTUATION}, {"?", TERMINAL_PUNCTUATION},
+        {"the", ARTICLE}, {"a", ARTICLE}
     };
 
     constexpr double similarityThreshold = 0.75; // Minimum similarity to accept a typo
 
     std::vector<Token> tokens;
     size_t i = 0;
+
+    std::string topicBuffer; // Accumulates words for a single TOPIC token
 
     while (i < input.size()) {
         // Skip whitespace
@@ -59,7 +62,7 @@ std::vector<Token> tokenize(const std::string& input) {
             continue;
         }
 
-        // Extract word
+        // Extract a word
         std::string word;
         while (i < input.size() && (std::isalnum(input[i]) || input[i] == '-')) {
             word += input[i++];
@@ -68,7 +71,7 @@ std::vector<Token> tokenize(const std::string& input) {
         // Convert word to lowercase
         word = toLowerCase(word);
 
-        // Find exact match or closest match
+        // Determine token type
         TokenType tokenType = INVALID;
         std::string bestMatch;
         double bestSimilarity = 0.0;
@@ -82,10 +85,16 @@ std::vector<Token> tokenize(const std::string& input) {
             }
         }
 
-        if (tokenType != INVALID) {
-            tokens.push_back({tokenType, bestMatch});
-        } else if (!word.empty()) {
-            tokens.push_back({TOPIC, word}); // Assume unrecognized words are part of the topic
+        // Handle tokens based on their type
+        if (tokenType == TOPIC || tokenType == INVALID) {
+            if (!topicBuffer.empty()) topicBuffer += " ";
+            topicBuffer += word;
+        } else {
+            if (!topicBuffer.empty()) {
+                tokens.push_back({TOPIC, topicBuffer}); // Push the accumulated TOPIC
+                topicBuffer.clear();
+            }
+            tokens.push_back({tokenType, bestMatch}); // Push the current token
         }
 
         // Handle punctuation
@@ -93,14 +102,134 @@ std::vector<Token> tokenize(const std::string& input) {
             std::string punctuation(1, input[i]);
             auto it = keywords.find(punctuation);
             if (it != keywords.end()) {
-                tokens.push_back({it->second, punctuation});
-            } else {
-                tokens.push_back({INVALID, punctuation});
+                if (!topicBuffer.empty()) {
+                    tokens.push_back({TOPIC, topicBuffer}); // Push the accumulated TOPIC
+                    topicBuffer.clear();
+                }
+                tokens.push_back({it->second, punctuation}); // Push punctuation token
             }
             ++i;
         }
     }
 
-    tokens.push_back({END, ""}); // End marker
+    // Push any remaining topicBuffer as the final TOPIC token
+    if (!topicBuffer.empty()) {
+        tokens.push_back({TOPIC, topicBuffer});
+    }
+
+    // Add END token
+    tokens.push_back({END, ""});
+
     return tokens;
+}
+
+
+// Grammar initialization
+Grammar::Grammar() {
+    rules = {
+        {"S'", {"command"}},
+        {"command", {"action", "target", "preposition", "topic", "TERMINAL_PUNCTUATION"}},
+        {"action", {"interrogate"}},
+        {"action", {"examine"}},
+        {"action", {"accuse"}},
+        {"target", {"suspect"}},
+        {"target", {"evidence"}},
+        {"preposition", {"about"}},
+        {"preposition", {"regarding"}},
+        {"topic", {"[a-zA-Z ]+"}},
+        {"TERMINAL_PUNCTUATION", {"."}},
+        {"TERMINAL_PUNCTUATION", {"!"}},
+        {"TERMINAL_PUNCTUATION", {"?"}}
+    };
+
+    for (const auto&[lhs, rhs] : rules) {
+        nonTerminals.insert(lhs);
+        for (const auto& symbol : rhs) {
+            if (!nonTerminals.contains(symbol)) {
+                terminals.insert(symbol);
+            }
+        }
+    }
+
+    for (const auto& rule : rules) {
+        productionMap[rule.lhs].push_back(rule.rhs);
+    }
+
+
+    computeFollowSets();
+}
+
+const std::vector<GrammarRule>& Grammar::getRules() const {
+    return rules;
+}
+
+const std::map<std::string, std::vector<std::vector<std::string>>> & Grammar::getProductionMap() const {
+    return productionMap;
+}
+
+const std::set<std::string>& Grammar::getTerminals() const {
+    return terminals;
+}
+
+const std::set<std::string>& Grammar::getNonTerminals() const {
+    return nonTerminals;
+}
+
+const std::set<std::string>& Grammar::getSymbols() const {
+    static std::set<std::string> symbols;
+    if (symbols.empty()) {
+        symbols.insert(terminals.begin(), terminals.end());
+        symbols.insert(nonTerminals.begin(), nonTerminals.end());
+    }
+    return symbols;
+}
+
+bool Grammar::isTerminal(const std::string& symbol) const {
+    return terminals.contains(symbol);
+}
+
+bool Grammar::isNonTerminal(const std::string& symbol) const {
+    return nonTerminals.contains(symbol);
+}
+
+void Grammar::computeFollowSets() {
+    for (const auto& nonTerminal : nonTerminals) {
+        followSets[nonTerminal] = {};
+    }
+    followSets["S'"].insert("$");
+
+    bool changed = true;
+    while (changed) {
+        changed = false;
+        for (const auto& rule : rules) {
+            const auto& lhs = rule.lhs;
+            const auto& rhs = rule.rhs;
+            for (size_t i = 0; i < rhs.size(); ++i) {
+                const std::string& symbol = rhs[i];
+                if (isNonTerminal(symbol)) {
+                    std::set<std::string> followSet;
+                    if (i + 1 < rhs.size()) {
+                        std::string nextSymbol = rhs[i + 1];
+                        if (isTerminal(nextSymbol)) {
+                            followSet.insert(nextSymbol);
+                        } else {
+                            followSet.insert(terminals.begin(), terminals.end());
+                        }
+                    }
+                    if (i + 1 == rhs.size()) {
+                        followSet.insert(followSets[lhs].begin(), followSets[lhs].end());
+                    }
+                    size_t oldSize = followSets[symbol].size();
+                    followSets[symbol].insert(followSet.begin(), followSet.end());
+                    if (followSets[symbol].size() > oldSize) {
+                        changed = true;
+                    }
+                }
+            }
+        }
+    }
+}
+
+const std::set<std::string>& Grammar::getFollowSet(const std::string& nonTerminal) const {
+    return followSets.at(nonTerminal);
 }

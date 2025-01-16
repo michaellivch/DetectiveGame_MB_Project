@@ -1,33 +1,68 @@
 #ifndef CFG_H
 #define CFG_H
 
-#include <vector>
 #include <string>
+#include <vector>
 #include <map>
+#include <set>
 
-// Token types
-enum TokenType { ACTION, TARGET, PREPOSITION, TOPIC, TERMINAL_PUNCTUATION, INVALID, END };
+// Token Types
+enum TokenType {
+    ACTION,
+    TARGET,
+    ARTICLE,
+    PREPOSITION,
+    TOPIC,
+    TERMINAL_PUNCTUATION,
+    INVALID,
+    END
+};
 
-// Token structure
+// Token Structure
 struct Token {
     TokenType type;
     std::string value;
 };
 
-// Grammar rule structure
+// Grammar Rule Structure
 struct GrammarRule {
-    std::string lhs;                   // Left-hand side of the rule
-    std::vector<std::string> rhs;      // Right-hand side of the rule (vector of symbols)
+    std::string lhs;                  // Left-hand side of the rule
+    std::vector<std::string> rhs;     // Right-hand side of the rule
 };
 
-// Tokenizer function
+// Grammar Class
+class Grammar {
+public:
+    Grammar(); // Constructor to initialize grammar rules
+
+    // Accessor Methods
+    [[nodiscard]] const std::vector<GrammarRule>& getRules() const;                                     // Get all grammar rules
+    [[nodiscard]] const std::map<std::string, std::vector<std::vector<std::string>>>& getProductionMap() const;
+    [[nodiscard]] const std::set<std::string>& getTerminals() const;                                    // Get terminal symbols
+    [[nodiscard]] const std::set<std::string>& getNonTerminals() const;                                 // Get non-terminal symbols
+    [[nodiscard]] const std::set<std::string>& getSymbols() const;                                      // Get all grammar symbols
+    [[nodiscard]] const std::set<std::string>& getFollowSet(const std::string& nonTerminal) const;      // Get Follow set for a non-terminal
+
+    // Utility Methods
+    [[nodiscard]] bool isTerminal(const std::string& symbol) const;     // Check if a symbol is a terminal
+    [[nodiscard]] bool isNonTerminal(const std::string& symbol) const;  // Check if a symbol is a non-terminal
+
+private:
+    std::vector<GrammarRule> rules;                                 // List of grammar rules
+    std::set<std::string> terminals;                                // Set of terminal symbols
+    std::set<std::string> nonTerminals;                             // Set of non-terminal symbols
+    std::map<std::string, std::vector<std::vector<std::string>>> productionMap;  // Non-terminal -> RHS productions
+    std::map<std::string, std::set<std::string>> followSets;        // Follow sets for non-terminals
+
+    void computeFollowSets(); // Internal method to calculate Follow sets
+};
+
+// Tokenizer Function
 std::vector<Token> tokenize(const std::string& input);
 
-// CFG-based parser class
-class CFGParser {
-public:
-    std::vector<GrammarRule> grammarRules;  // Set of grammar rules
-    std::map<std::string, std::vector<std::vector<std::string>>> grammarMap; // Efficient grammar lookup
-};
+// Utility Functions
+std::string toLowerCase(const std::string& str);      // Convert string to lowercase
+int levenshteinDistance(const std::string& s1, const std::string& s2); // Calculate Levenshtein distance
+double similarityPercentage(const std::string& s1, const std::string& s2); // Get similarity percentage
 
 #endif // CFG_H
