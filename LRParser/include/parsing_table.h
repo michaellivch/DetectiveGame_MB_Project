@@ -7,10 +7,5 @@
 
 
 
-class parsing_table {
-
-};
-
-
 
 #endif //PARSING_TABLE_H

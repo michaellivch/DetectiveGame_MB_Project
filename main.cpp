@@ -64,6 +64,7 @@
 //}
 
 #include "Game/Game.h"
+#include "LRParser/include/lrparser.h"
 
 int main() {
   // Load the PDA from a JSON file
@@ -94,6 +95,13 @@ int main() {
       break;
     }
   }
+  // Initialize the Grammar
+  Grammar grammar;
+
+  // Create an LRParser with the Grammar
+  LRParser parser(grammar);
+
+  parser.createInitialState();
 
   return 0;
 }
