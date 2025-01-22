@@ -11,10 +11,10 @@ add_executable(Game
         main.cpp
         LRParser/src/cfg.cpp
         LRParser/include/cfg.h
-        LRParser/src/parsing_table.cpp
-        LRParser/include/parsing_table.h
-        LRParser/src/lrparser.cpp
-        LRParser/include/lrparser.h
+        LRParser/src/ParsingTable.cpp
+        LRParser/include/ParsingTable.h
+        LRParser/src/LALR_Parser.cpp
+        LRParser/include/LALR_Parser.h
         PDA/PDA.cpp
         Game/StateManager.h
         Game/StateManager.cpp

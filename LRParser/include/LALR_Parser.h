@@ -11,6 +11,7 @@
 #include <vector>
 #include <iostream>
 #include <queue>
+#include "ParsingTable.h"
 
 struct Item {
     std::string lhs;                      // Left-hand side of the production
@@ -45,10 +46,10 @@ struct State {
     }
 };
 
-// LRParser Class
-class LRParser {
+// LALRParser Class
+class LALRParser {
 public:
-    explicit LRParser(const Grammar& grammar);
+    explicit LALRParser(const Grammar& grammar);
 
     // Augmented Grammar Accessor
     [[nodiscard]] const std::vector<GrammarRule>& getAugmentedGrammar() const;
@@ -69,11 +70,11 @@ public:
     // Lalr specific functions
     void addLookahead();
 
-    std::string formatLookahead(const std::set<std::string>& lookahead) const;
-    void printLALRStates() const;
-    void mergeStatesToLALR();
+    [[nodiscard]] std::string formatLookahead(const std::set<std::string>& lookahead) const;
     std::vector<std::map<std::string, int>> transitions;
 
+    //Parsing Algorithm
+    void parse(std::vector<Token> tokens);
 
 
 private:
@@ -81,6 +82,9 @@ private:
     std::vector<GrammarRule> augmentedGrammar;   // Augmented grammar rules
     std::vector<State> states;
     void constructAugmentedGrammar();            // Method to construct the augmented grammar
+    ParsingTable parsingTable;                   // Parsing table instance
+
+
 };
 
 

@@ -1,20 +1,16 @@
-#include <iostream>
-#include "LRParser/include/lrparser.h"
+#include "LRParser/include/LALR_Parser.h"
 #include "LRParser/include/cfg.h"
+#include <iostream>
 
 int main() {
-  // Definieer een voorbeeldgrammatica
-  Grammar grammar = Grammar();
+  Grammar grammar = Grammar(); // Assume this is initialized
+  LALRParser parser(grammar);
 
-  // Initialiseer de LR-parser met de grammatica
-  LRParser parser(grammar);
-
-  // Bouw de LR(0)-automaat
   parser.createParser();
-
-  // Print de gegenereerde staten
   parser.printStates();
 
+  std::vector<Token> tokens = tokenize("interrogate suspect about cop.");
 
   return 0;
 }
+
