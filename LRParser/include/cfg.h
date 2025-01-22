@@ -47,6 +47,36 @@ public:
     [[nodiscard]] bool isTerminal(const std::string& symbol) const;     // Check if a symbol is a terminal
     [[nodiscard]] bool isNonTerminal(const std::string& symbol) const;  // Check if a symbol is a non-terminal
 
+    std::set<std::string> computeFirst(const std::vector<std::string>& symbols) const {
+      std::set<std::string> firstSet;
+
+      for (const auto& symbol : symbols) {
+        if (isTerminal(symbol)) {
+          firstSet.insert(symbol); // Terminals go directly into FIRST set
+          break;
+        } else if (isNonTerminal(symbol)) {
+          const auto& productions = productionMap.at(symbol);
+          for (const auto& production : productions) {
+            auto firstOfProduction = computeFirst(production);
+            firstSet.insert(firstOfProduction.begin(), firstOfProduction.end());
+
+            // If the production doesn't produce epsilon, stop
+            if (!firstOfProduction.contains("epsilon")) {
+              break;
+            }
+          }
+        }
+
+        // If the symbol produces epsilon, continue to the next symbol
+        if (!firstSet.contains("epsilon")) {
+          break;
+        }
+      }
+
+      return firstSet;
+    }
+
+
 private:
     std::vector<GrammarRule> rules;                                 // List of grammar rules
     std::set<std::string> terminals;                                // Set of terminal symbols

@@ -69,12 +69,17 @@ public:
     // Lalr specific functions
     void addLookahead();
 
+    std::string formatLookahead(const std::set<std::string>& lookahead) const;
+    void printLALRStates() const;
+    void mergeStatesToLALR();
+    std::vector<std::map<std::string, int>> transitions;
+
+
 
 private:
     const Grammar& grammar;                      // Reference to the grammar
     std::vector<GrammarRule> augmentedGrammar;   // Augmented grammar rules
     std::vector<State> states;
-
     void constructAugmentedGrammar();            // Method to construct the augmented grammar
 };
 
