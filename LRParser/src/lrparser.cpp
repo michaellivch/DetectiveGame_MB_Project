@@ -210,4 +210,19 @@ void LRParser::addState(const State &state) {
     this->states.push_back(state);
 }
 
-
+void LRParser::printStates() const {
+    std::cout << "LR(0) Automaton States:\n";
+    for (const auto& state : this->states) {
+        std::cout << "State ID: " << state.id << "\n";
+        for (const auto& item : state.items) {
+            std::cout << "  " << item.lhs << " -> ";
+            for (size_t i = 0; i < item.rhs.size(); ++i) {
+                if (i == item.dotPosition) std::cout << "•"; // Print dot at the correct position
+                std::cout << item.rhs[i] << " ";
+            }
+            if (item.dotPosition == item.rhs.size()) std::cout << "•"; // Dot at the end
+            std::cout << "\n";
+        }
+        std::cout << "\n";
+    }
+}

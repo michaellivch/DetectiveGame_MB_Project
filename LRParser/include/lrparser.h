@@ -60,6 +60,9 @@ public:
     State getInitialState() const;
     void addState(const State& state);
 
+    // Debug
+    void printStates() const;
+
 
 private:
     const Grammar& grammar;                      // Reference to the grammar

@@ -102,5 +102,6 @@ int main() {
   LRParser parser(grammar);
 
   parser.createParser();
+  parser.printStates();
   return 0;
 }

@@ -21,3 +21,5 @@ add_executable(Game
 
 # Link SFML-bibliotheken
 target_link_libraries(Game sfml-graphics sfml-window sfml-system)
+
+install(TARGETS Game DESTINATION bin)
