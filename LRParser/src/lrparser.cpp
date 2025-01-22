@@ -5,6 +5,7 @@
 #include "../include/lrparser.h"
 
 
+
 // Constructor
 LRParser::LRParser(const Grammar& grammar) : grammar(grammar) {
     constructAugmentedGrammar();
@@ -74,6 +75,139 @@ std::set<Item> LRParser::computeClosure(const std::set<Item> &items) const {
     }
 
     return closure;
+}
+
+State LRParser::computeGoto(const std::set<Item>& items, const std::string& symbol) {
+    // Debug: Log input items and symbol
+    std::cout << "DEBUG: computeGoto called with symbol: " << symbol << "\n";
+    std::cout << "DEBUG: Current items:\n";
+    for (const auto& item : items) {
+        std::cout << "  " << item.lhs << " -> ";
+        for (size_t i = 0; i < item.rhs.size(); ++i) {
+            if (i == item.dotPosition) std::cout << "•";
+            std::cout << item.rhs[i] << " ";
+        }
+        if (item.dotPosition == item.rhs.size()) std::cout << "•"; // Dot at the end
+        std::cout << "\n";
+    }
+
+    // Set of items for the new state
+    std::set<Item> nextItems;
+
+    // Step 1: Generate items by advancing the dot
+    std::cout << "DEBUG: Advancing dot for symbol: " << symbol << "\n";
+    for (const auto& item : items) {
+        if (item.dotPosition < item.rhs.size() && item.rhs[item.dotPosition] == symbol) {
+            // Create a new item with the dot advanced
+            Item nextItem = item;
+            nextItem.dotPosition++;
+            nextItems.insert(nextItem);
+
+            // Debug: Log the advanced item
+            std::cout << "  Advanced item: " << nextItem.lhs << " -> ";
+            for (size_t i = 0; i < nextItem.rhs.size(); ++i) {
+                if (i == nextItem.dotPosition) std::cout << "•";
+                std::cout << nextItem.rhs[i] << " ";
+            }
+            if (nextItem.dotPosition == nextItem.rhs.size()) std::cout << "•"; // Dot at the end
+            std::cout << "\n";
+        }
+    }
+
+    // Step 2: Compute closure for the resulting set of items
+    std::cout << "DEBUG: Computing closure for next items...\n";
+    std::set<Item> closureItems = computeClosure(nextItems);
+
+    // Debug: Log closure result
+    std::cout << "DEBUG: Closure items:\n";
+    for (const auto& item : closureItems) {
+        std::cout << "  " << item.lhs << " -> ";
+        for (size_t i = 0; i < item.rhs.size(); ++i) {
+            if (i == item.dotPosition) std::cout << "•";
+            std::cout << item.rhs[i] << " ";
+        }
+        if (item.dotPosition == item.rhs.size()) std::cout << "•"; // Dot at the end
+        std::cout << "\n";
+    }
+
+    // Step 3: Create a new state and return
+    State newState = {static_cast<int>(this->states.size()), closureItems};
+
+    // Debug: Log the new state
+    std::cout << "DEBUG: Created new state with ID: " << newState.id << "\n";
+    std::cout << "DEBUG: State items:\n";
+    for (const auto& item : newState.items) {
+        std::cout << "  " << item.lhs << " -> ";
+        for (size_t i = 0; i < item.rhs.size(); ++i) {
+            if (i == item.dotPosition) std::cout << "•";
+            std::cout << item.rhs[i] << " ";
+        }
+        if (item.dotPosition == item.rhs.size()) std::cout << "•"; // Dot at the end
+        std::cout << "\n";
+    }
+
+    return newState;
+}
+
+void LRParser::createParser() {
+    this->createInitialState(); // Generate the initial state
+
+    // Use a queue to process states incrementally
+    std::queue<State> unprocessedStates;
+    unprocessedStates.push(this->states[0]); // Start with the initial state
+
+    // Track already processed states
+    std::set<int> processedStateIds;
+
+    while (!unprocessedStates.empty()) {
+        State currentState = unprocessedStates.front();
+        unprocessedStates.pop();
+
+        // Check if the current state is already processed
+        if (processedStateIds.find(currentState.id) != processedStateIds.end()) {
+            continue; // Skip already processed states
+        }
+        processedStateIds.insert(currentState.id);
+
+        // Process items in the current state
+        for (const auto& item : currentState.items) {
+            // Check if dotPosition is valid
+            if (item.dotPosition < item.rhs.size()) {
+                // Get the symbol after the dot
+                const std::string& symbol = item.rhs[item.dotPosition];
+
+                // Compute GOTO for this symbol
+                State nextState = computeGoto(currentState.items, symbol);
+
+                // Add the resulting state if it's new
+                // Check if the resulting state already exists
+                bool stateExists = false;
+                for (const auto& existingState : this->states) {
+                    if (existingState.items == nextState.items) {
+                        stateExists = true;
+                        break;
+                    }
+                }
+
+                // Add the new state if it doesn't exist
+                if (!stateExists) {
+                    nextState.id = static_cast<int>(this->states.size());
+                    this->states.push_back(nextState);
+                    unprocessedStates.push(nextState); // Add to unprocessed queue
+                }
+            }
+        }
+    }
+
+}
+
+
+State LRParser::getInitialState() const {
+    return states[0];
+}
+
+void LRParser::addState(const State &state) {
+    this->states.push_back(state);
 }
 
 

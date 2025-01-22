@@ -101,7 +101,6 @@ int main() {
   // Create an LRParser with the Grammar
   LRParser parser(grammar);
 
-  parser.createInitialState();
-
+  parser.createParser();
   return 0;
 }

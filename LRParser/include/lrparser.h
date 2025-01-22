@@ -9,25 +9,25 @@
 
 #include "cfg.h"
 #include <vector>
+#include <iostream>
+#include <queue>
 
 struct Item {
     std::string lhs;                      // Left-hand side of the production
     std::vector<std::string> rhs;         // Right-hand side of the production
     size_t dotPosition;                   // Position of the dot in the RHS
 
-    // Comparison operator for std::set and std::map
+    // Equality operator
+    bool operator==(const Item& other) const {
+        return lhs == other.lhs &&
+               rhs == other.rhs &&
+               dotPosition == other.dotPosition;
+    }
+
+    // Less-than operator (required for std::set)
     bool operator<(const Item& other) const {
-        // Compare lhs first
-        if (lhs != other.lhs) {
-            return lhs < other.lhs;
-        }
-
-        // Compare rhs lexicographically
-        if (rhs != other.rhs) {
-            return rhs < other.rhs; // std::vector provides < operator
-        }
-
-        // Compare dotPosition as a last resort
+        if (lhs != other.lhs) return lhs < other.lhs;
+        if (rhs != other.rhs) return rhs < other.rhs;
         return dotPosition < other.dotPosition;
     }
 };
@@ -36,6 +36,10 @@ struct State {
     int id;                               // Unique identifier for the state
     std::set<Item> items;                 // Set of items in this state
 
+    // Equality operator for State
+    bool operator==(const State& other) const {
+        return this->items == other.items;
+    }
 };
 
 // LRParser Class
@@ -46,9 +50,16 @@ public:
     // Augmented Grammar Accessor
     [[nodiscard]] const std::vector<GrammarRule>& getAugmentedGrammar() const;
 
-
+    // Parser Creation
     void createInitialState();
     [[nodiscard]] std::set<Item> computeClosure(const std::set<Item>& items) const;
+    State computeGoto(const std::set<Item>& items, const std::string& symbol);
+    void createParser();
+
+    // Setters And Getters
+    State getInitialState() const;
+    void addState(const State& state);
+
 
 private:
     const Grammar& grammar;                      // Reference to the grammar
