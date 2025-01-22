@@ -30,14 +30,46 @@ PDA::PDA(const string& jsonfile){
         T.nextState = transitions["to"];
         T.input = transitions["input"];
         T.stackTop = transitions["stacktop"];
+        T.image = transitions["image"];
         for (const auto& replacementsymbol : transitions["replacement"]){
             T.replacement.push_back(replacementsymbol);
         }
         transitionTable.push_back(T);
     }
     initialState = j["StartState"];
+    currentState = initialState;
     stackInitialState = j["StartStack"];
+
+    stacks["MainStack"].push_back(stackInitialState);
+    stacks["ImageStack"] = {"../Scenes/house.jpg"}; // Kan leeg beginnen
 }
+
+bool PDA::processInput(const string& input) {
+  for (const auto& transition : transitionTable) {
+    if (transition.currentState == currentState && transition.input == input &&
+        !stacks[transition.stack].empty() &&
+        stacks[transition.stack].back() == transition.stackTop) {
+      // Debugging: print huidige status
+      cout << "Processing transition: " << transition.currentState << " -> "
+           << transition.nextState << " on input: " << input << endl;
+      // Werk de stack bij
+      stacks[transition.stack].pop_back();
+      for (auto it = transition.replacement.rbegin(); it != transition.replacement.rend(); ++it) {
+        stacks[transition.stack].push_back(*it);
+      }
+      stacks["ImageStack"] = {transition.image};
+      // Verander de huidige status
+      currentState = transition.nextState;
+      // Debugging: toon nieuwe stack en status
+      printStatus();
+      return true; // Succesvolle transitie
+    }
+  }
+  cerr << "No valid transition found for input: " << input << endl;
+  return false; // Geen geldige transitie
+}
+
+
 string PDA::getNextState(const string &currentState, const string &input,
                          const string &stackTop) {
     for (const auto &transition : transitionTable) {
@@ -62,4 +94,26 @@ string PDA::getState(string input) {
       }
     }
     return currentState;
+}
+void PDA::printStatus() const {
+  cout << "Current State: " << currentState << endl;
+  for (const auto& [stackName, stack] : stacks) {
+    cout << stackName << ": ";
+    for (const auto& symbol : stack) {
+      cout << symbol << " ";
+    }
+    cout << endl;
+  }
+}
+
+string PDA::getCurrentState() const {
+  return currentState;
+}
+vector<string> PDA::getStack(const string &stackName) const {
+  return stacks.at(stackName);
+}
+vector<PDA::Transition> PDA::getTransitions() { return transitionTable; }
+
+bool PDA::isAccepted() const {
+  return find(finalStates.begin(), finalStates.end(), currentState) != finalStates.end();
 }

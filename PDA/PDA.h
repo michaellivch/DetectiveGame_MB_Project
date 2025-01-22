@@ -6,15 +6,20 @@
 #define CFG_PDA_H
 #include "vector"
 #include "string"
+#include "map"
 using namespace std;
 class PDA {
 
 private:
+private:
+    map<string, vector<string>> stacks;
     struct Transition {
+        string stack = "MainStack";
         string currentState;
         string input;
         string nextState;
         string stackTop; //first which stack of the MPDA, then the symbol
+        string image;
         vector<string> replacement = {};
     };
     string initialState;
@@ -24,11 +29,19 @@ private:
     vector<string> stackAlphabet;
     vector<string> finalStates;
     string stackInitialState;
+    string currentState;
+
+    void printStatus() const;
 
 public:
     PDA(const string& jsonfile);
     string getNextState(const string& currentState, const string& input, const string& stackTop);
     string getState(string input);
+    bool processInput(const string& input);
+    string getCurrentState() const;
+    vector<string> getStack(const string& stackName) const;
+    vector<Transition> getTransitions();
+    bool isAccepted() const;
 };
 
 
