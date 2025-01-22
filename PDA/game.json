@@ -1,0 +1,39 @@
+{
+  "States": [
+    "arrive_at_house", "ask_for_info", "go_inside",
+    "talk_to_wife", "examine_desk", "examine_window",
+    "examine_body", "examine_paper_on_desk", "room_where_wife_is",
+    "take_the_bat", "arrest_her", "die"
+  ],
+  "Stacks": ["MainStack", "ImageStack"],
+  "Alphabet": ["0", "1", "2"],
+  "StackAlphabet": ["Z0", "Z1", "Z2", "Bat"],
+  "Transitions": [
+
+    { "from": "arrive_at_house", "input": "0", "stacktop": "Z0", "to": "ask_for_info", "stack": "MainStack", "replacement": ["Z0"], "image": "../Scenes/info.png" },
+    { "from": "arrive_at_house", "input": "1", "stacktop": "Z0", "to": "go_inside", "stack": "MainStack", "replacement": ["Z1"], "image": "../Scenes/inside.png" },
+    { "from": "arrive_at_house", "input": "2", "stacktop": "Z0", "to": "talk_to_wife", "stack": "MainStack", "replacement": ["Z0"], "image": "../Scenes/talk_wife.png" },
+    { "from": "ask_for_info", "input": "0", "stacktop": "Z0", "to": "arrive_at_house", "stack": "MainStack", "replacement": ["Z0"], "image": "../Scenes/house.jpg" },
+    { "from": "talk_to_wife", "input": "0", "stacktop": "Z0", "to": "arrive_at_house", "stack": "MainStack", "replacement": ["Z0"], "image": "../Scenes/house.jpg" },
+
+    { "from": "go_inside", "input": "0", "stacktop": "Z1", "to": "examine_desk", "stack": "MainStack", "replacement": ["Z1"], "image": "../Scenes/paper_on_desk.png" },
+    { "from": "go_inside", "input": "1", "stacktop": "Z1", "to": "examine_window", "stack": "MainStack", "replacement": ["Z1"], "image": "../Scenes/window.png" },
+    { "from": "go_inside", "input": "2", "stacktop": "Z1", "to": "examine_body", "stack": "MainStack", "replacement": ["Z1"], "image": "../Scenes/body.png" },
+    { "from": "examine_desk", "input": "0", "stacktop": "Z1", "to": "go_inside", "stack": "MainStack", "replacement": ["Z1"], "image": "../Scenes/inside.png" },
+    { "from": "examine_window", "input": "0", "stacktop": "Z1", "to": "go_inside", "stack": "MainStack", "replacement": ["Z1"], "image": "../Scenes/inside.png" },
+    { "from": "examine_body", "input": "0", "stacktop": "Z1", "to": "go_inside", "stack": "MainStack", "replacement": ["Z1"], "image": "../Scenes/inside.png" },
+
+    { "from": "examine_desk", "input": "1", "stacktop": "Z1", "to": "examine_paper_on_desk", "stack": "MainStack", "replacement": ["Z1"], "image": "../Scenes/paper_on_desk.png" },
+    { "from": "examine_paper_on_desk", "input": "epsilon", "stacktop": "Z1", "to": "room_where_wife_is", "stack": "MainStack", "replacement": ["Z2"], "image": "../Scenes/room_where_wife.png" },
+
+    { "from": "room_where_wife_is", "input": "0", "stacktop": "Z2", "to": "talk_to_wife", "stack": "MainStack", "replacement": ["Z2"], "image": "../Scenes/talk_wife_again.png" },
+    { "from": "room_where_wife_is", "input": "1", "stacktop": "Z2", "to": "take_the_bat", "stack": "MainStack", "replacement": ["Bat"], "image": "../Scenes/take_bat.png" },
+    { "from": "take_the_bat", "input": "epsilon", "stacktop": "Bat", "to": "talk_to_wife", "stack": "MainStack", "replacement": ["Bat"], "image": "../Scenes/talk_wife_bat.png" },
+
+    { "from": "talk_to_wife", "input": "epsilon", "stacktop": "Bat", "to": "arrest_her", "stack": "MainStack", "replacement": ["Bat"], "image": "../Scenes/arrest.png" },
+    { "from": "talk_to_wife", "input": "epsilon", "stacktop": "Z2", "to": "die", "stack": "MainStack", "replacement": [], "image": "../Scenes/die.png" }
+  ],
+  "AcceptStates": ["arrest_her", "die"],
+  "StartState": "arrive_at_house",
+  "StartStack": "Z0"
+}
