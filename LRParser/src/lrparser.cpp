@@ -91,6 +91,7 @@ std::set<Item> LRParser::computeClosure(const std::set<Item>& items) const {
 }
 
 State LRParser::computeGoto(const std::set<Item>& items, const std::string& symbol) {
+  /*
     // Debug: Log input items and symbol
     std::cout << "DEBUG: computeGoto called with symbol: " << symbol << "\n";
     std::cout << "DEBUG: Current items:\n";
@@ -103,18 +104,21 @@ State LRParser::computeGoto(const std::set<Item>& items, const std::string& symb
         if (item.dotPosition == item.rhs.size()) std::cout << "•"; // Dot at the end
         std::cout << "\n";
     }
+    */
 
     // Set of items for the new state
     std::set<Item> nextItems;
 
     // Step 1: Generate items by advancing the dot
-    std::cout << "DEBUG: Advancing dot for symbol: " << symbol << "\n";
+    //std::cout << "DEBUG: Advancing dot for symbol: " << symbol << "\n";
     for (const auto& item : items) {
         if (item.dotPosition < item.rhs.size() && item.rhs[item.dotPosition] == symbol) {
             // Create a new item with the dot advanced
             Item nextItem = item;
             nextItem.dotPosition++;
             nextItems.insert(nextItem);
+
+          /*
 
             // Debug: Log the advanced item
             std::cout << "  Advanced item: " << nextItem.lhs << " -> ";
@@ -124,13 +128,16 @@ State LRParser::computeGoto(const std::set<Item>& items, const std::string& symb
             }
             if (nextItem.dotPosition == nextItem.rhs.size()) std::cout << "•"; // Dot at the end
             std::cout << "\n";
+
+            */
         }
     }
 
     // Step 2: Compute closure for the resulting set of items
-    std::cout << "DEBUG: Computing closure for next items...\n";
+    //std::cout << "DEBUG: Computing closure for next items...\n";
     std::set<Item> closureItems = computeClosure(nextItems);
 
+  /*
     // Debug: Log closure result
     std::cout << "DEBUG: Closure items:\n";
     for (const auto& item : closureItems) {
@@ -142,10 +149,12 @@ State LRParser::computeGoto(const std::set<Item>& items, const std::string& symb
         if (item.dotPosition == item.rhs.size()) std::cout << "•"; // Dot at the end
         std::cout << "\n";
     }
+    */
 
     // Step 3: Create a new state and return
     State newState = {static_cast<int>(this->states.size()), closureItems};
 
+  /*
     // Debug: Log the new state
     std::cout << "DEBUG: Created new state with ID: " << newState.id << "\n";
     std::cout << "DEBUG: State items:\n";
@@ -158,6 +167,7 @@ State LRParser::computeGoto(const std::set<Item>& items, const std::string& symb
         if (item.dotPosition == item.rhs.size()) std::cout << "•"; // Dot at the end
         std::cout << "\n";
     }
+    */
 
     return newState;
 }

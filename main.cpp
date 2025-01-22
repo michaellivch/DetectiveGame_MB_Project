@@ -13,15 +13,8 @@ int main() {
   parser.createParser();
 
   // Print de gegenereerde staten
-  std::cout << "LR(0)-automaat:\n";
   parser.printStates();
 
-  // Voeg lookaheads toe
-  parser.addLookahead();
-
-  // Print de staten met lookahead-symbolen
-  std::cout << "\nLR(1)-automaat met lookahead-symbolen:\n";
-  parser.printStates();
 
   return 0;
 }
