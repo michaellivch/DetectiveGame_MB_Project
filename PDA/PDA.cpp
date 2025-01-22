@@ -41,7 +41,7 @@ PDA::PDA(const string& jsonfile){
     stackInitialState = j["StartStack"];
 
     stacks["MainStack"].push_back(stackInitialState);
-    stacks["ImageStack"] = {"../Scenes/house.jpg"}; // Kan leeg beginnen
+    stacks["ImageStack"] = {"../Assets/Scenes/house.jpg"}; // Kan leeg beginnen
 }
 
 bool PDA::processInput(const string& input) {

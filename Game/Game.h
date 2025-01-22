@@ -21,7 +21,7 @@ private:
 
 public:
   GUIManager() : window(sf::VideoMode(500, 500), "Detective Game") {
-    if (!font.loadFromFile("/home/jeremi/CLionProjects/DetectiveGame_MB_Project/Game/font.ttf")) {
+    if (!font.loadFromFile("../Assets/font.ttf")) {
       std::cerr << "Error: Could not load font.\n";
     }
 

@@ -67,7 +67,7 @@
 
 int main() {
   // Load the PDA from a JSON file
-  PDA pda("/home/jeremi/CLionProjects/DetectiveGame_MB_Project/PDA/game.json");
+  PDA pda("../Assets/game.json");
 
   // GUI Manager
   GUIManager gui;
