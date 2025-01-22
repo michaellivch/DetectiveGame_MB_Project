@@ -39,6 +39,9 @@ PDA::PDA(const string& jsonfile){
     initialState = j["StartState"];
     currentState = initialState;
     stackInitialState = j["StartStack"];
+    for (auto state : j["AcceptStates"]) {
+        finalStates.push_back(state);
+    }
 
     stacks["MainStack"].push_back(stackInitialState);
     stacks["ImageStack"] = {"../Assets/Scenes/house.jpg"}; // Kan leeg beginnen
@@ -114,6 +117,20 @@ vector<string> PDA::getStack(const string &stackName) const {
 }
 vector<PDA::Transition> PDA::getTransitions() { return transitionTable; }
 
-bool PDA::isAccepted() const {
-  return find(finalStates.begin(), finalStates.end(), currentState) != finalStates.end();
+bool PDA::isFinalState() const {
+  for (auto state : finalStates) {
+    if (currentState == state) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool PDA::hasEpsilonTransition() const {
+  for (const auto& transition : transitionTable) {
+    if (transition.currentState == currentState && transition.input == "epsilon") {
+      return true;
+    }
+  }
+  return false;
 }

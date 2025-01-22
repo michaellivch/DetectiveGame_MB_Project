@@ -41,7 +41,8 @@ public:
     string getCurrentState() const;
     vector<string> getStack(const string& stackName) const;
     vector<Transition> getTransitions();
-    bool isAccepted() const;
+    bool isFinalState() const;
+    bool hasEpsilonTransition() const;
 };
 
 
