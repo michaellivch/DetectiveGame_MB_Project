@@ -148,7 +148,6 @@ Grammar::Grammar() {
         {"TERMINAL_PUNCTUATION", {"!"}},
         {"TERMINAL_PUNCTUATION", {"?"}}
     };
-
     for (const auto&[lhs, rhs] : rules) {
         nonTerminals.insert(lhs);
         for (const auto& symbol : rhs) {
@@ -157,12 +156,9 @@ Grammar::Grammar() {
             }
         }
     }
-
     for (const auto& rule : rules) {
         productionMap[rule.lhs].push_back(rule.rhs);
     }
-
-
     computeFollowSets();
 }
 
