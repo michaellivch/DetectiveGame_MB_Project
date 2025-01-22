@@ -16,19 +16,22 @@ struct Item {
     std::string lhs;                      // Left-hand side of the production
     std::vector<std::string> rhs;         // Right-hand side of the production
     size_t dotPosition;                   // Position of the dot in the RHS
+    std::set<std::string> lookahead;      // Set of terminal symbols (lookahead)
 
-    // Equality operator
+    // Equality operator (used for comparisons)
     bool operator==(const Item& other) const {
         return lhs == other.lhs &&
                rhs == other.rhs &&
-               dotPosition == other.dotPosition;
+               dotPosition == other.dotPosition &&
+               lookahead == other.lookahead; // Include lookahead in comparisons
     }
 
-    // Less-than operator (required for std::set)
+    // Less-than operator (used for ordering in std::set)
     bool operator<(const Item& other) const {
         if (lhs != other.lhs) return lhs < other.lhs;
         if (rhs != other.rhs) return rhs < other.rhs;
-        return dotPosition < other.dotPosition;
+        if (dotPosition != other.dotPosition) return dotPosition < other.dotPosition;
+        return lookahead < other.lookahead; // Include lookahead in ordering
     }
 };
 
@@ -62,6 +65,9 @@ public:
 
     // Debug
     void printStates() const;
+
+    // Lalr specific functions
+    void addLookahead();
 
 
 private:

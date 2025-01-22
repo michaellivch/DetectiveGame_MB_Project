@@ -39,3 +39,8 @@ LRParser/
 ├── main.cpp                # Entry point to test the parser
 ├── README.md               # Project documentation
 ├── CMakeLists.txt          # Build configuration
+
+```
+---
+
+## **How It Works**

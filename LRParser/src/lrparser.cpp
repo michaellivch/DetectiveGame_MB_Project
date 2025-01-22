@@ -201,7 +201,6 @@ void LRParser::createParser() {
 
 }
 
-
 State LRParser::getInitialState() const {
     return states[0];
 }
@@ -225,4 +224,8 @@ void LRParser::printStates() const {
         }
         std::cout << "\n";
     }
+}
+
+void LRParser::addLookahead() {
+
 }
