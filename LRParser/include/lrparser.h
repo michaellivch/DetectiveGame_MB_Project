@@ -23,7 +23,7 @@ struct Item {
         return lhs == other.lhs &&
                rhs == other.rhs &&
                dotPosition == other.dotPosition &&
-               lookahead == other.lookahead; // Include lookahead in comparisons
+               lookahead == other.lookahead;
     }
 
     // Less-than operator (used for ordering in std::set)
@@ -31,7 +31,7 @@ struct Item {
         if (lhs != other.lhs) return lhs < other.lhs;
         if (rhs != other.rhs) return rhs < other.rhs;
         if (dotPosition != other.dotPosition) return dotPosition < other.dotPosition;
-        return lookahead < other.lookahead; // Include lookahead in ordering
+        return lookahead < other.lookahead;
     }
 };
 
@@ -60,7 +60,7 @@ public:
     void createParser();
 
     // Setters And Getters
-    State getInitialState() const;
+    [[nodiscard]] State getInitialState() const;
     void addState(const State& state);
 
     // Debug

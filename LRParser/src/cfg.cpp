@@ -44,7 +44,6 @@ std::vector<Token> tokenize(const std::string& input) {
         {"interrogate", ACTION}, {"examine", ACTION}, {"accuse", ACTION},
         {"suspect", TARGET}, {"evidence", TARGET},
         {"about", PREPOSITION}, {"regarding", PREPOSITION},
-
         {".", TERMINAL_PUNCTUATION}, {"!", TERMINAL_PUNCTUATION}, {"?", TERMINAL_PUNCTUATION},
         {"the", ARTICLE}, {"a", ARTICLE}
     };
@@ -138,6 +137,7 @@ Grammar::Grammar() {
         {"preposition", {"about"}},
         {"preposition", {"regarding"}},
         {"topic", {"cop"}},
+        {"topic", {"bat"}},
         {"topic", {"house"}},
         {"topic", {"suspect"}},
         {"topic", {"window"}},

@@ -4,6 +4,7 @@
 
 #include "../include/lrparser.h"
 
+#include <algorithm>
 
 
 // Constructor
@@ -268,8 +269,28 @@ void LRParser::addLookahead() {
   for (const auto& [core, mergedItems] : mergedStates) {
     states.push_back({static_cast<int>(states.size()), mergedItems});
   }
+
+  std::vector<State> new_states;
+
+  bool stop = false;
+  for (auto &state : states) {
+
+    if (!stop) {
+      new_states.push_back(state);
+    }
+    for (const auto& item : state.items) {
+      if (item.dotPosition == item.rhs.size() and item.lhs == "command") {
+        stop = true;
+        break;
+      }
+    }
+  }
+
+  states = new_states;
+
 }
 
+/*
 // Merge LR(1) States to Create LALR(1)
 void LRParser::mergeStatesToLALR() {
   // Map kernen (zonder lookahead) naar een lijst van LR(1)-state IDs
@@ -342,6 +363,7 @@ void LRParser::printLALRStates() const {
     std::cout << "\n";
   }
 }
+*/
 
 // Helper to Format Lookahead Symbols for Debug
 std::string LRParser::formatLookahead(const std::set<std::string>& lookahead) const {
