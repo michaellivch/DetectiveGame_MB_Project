@@ -15,8 +15,11 @@ add_executable(Game
         LRParser/include/parsing_table.h
         LRParser/src/lrparser.cpp
         LRParser/include/lrparser.h
-        Game/Game.h
         PDA/PDA.cpp
+        Game/StateManager.h
+        Game/StateManager.cpp
+        Game/State.cpp
+        Game/State.h
 )
 
 # Link SFML-bibliotheken

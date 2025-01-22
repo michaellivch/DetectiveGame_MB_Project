@@ -63,45 +63,6 @@
 //    return 0;
 //}
 
-#include "Game/Game.h"
-#include "LRParser/include/lrparser.h"
+int main(){
 
-int main() {
-  // Load the PDA from a JSON file
-  PDA pda("../Assets/game.json");
-
-  // GUI Manager
-  GUIManager gui;
-
-  // Main loop
-  while (gui.isOpen()) {
-    gui.handleEvents(pda);
-
-    // Determine current image based on the PDA's state
-    std::string currentImage;
-    for (const auto& transition : pda.getTransitions()) {
-      if (transition.currentState == pda.getCurrentState()) {
-        currentImage = transition.image;
-        break;
-      }
-    }
-
-    gui.update(pda, pda.getStack("ImageStack")[0]);
-    gui.render();
-
-    // Check if the PDA has reached an accepting state
-    if (pda.isAccepted()) {
-      std::cout << "PDA reached an accepting state: " << pda.getCurrentState() << std::endl;
-      break;
-    }
-  }
-  // Initialize the Grammar
-  Grammar grammar;
-
-  // Create an LRParser with the Grammar
-  LRParser parser(grammar);
-
-  parser.createParser();
-  parser.printStates();
-  return 0;
 }
