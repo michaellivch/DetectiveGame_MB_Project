@@ -3,16 +3,42 @@
 #include <iostream>
 
 int main() {
-  Grammar grammar = Grammar(); // Assume this is initialized
+  // Initialize grammar and parser
+  Grammar grammar;
   LALRParser parser(grammar);
 
+  // Build the parsing table
   parser.createParser();
-  parser.printStates();
 
-//  parser.generateParsingTable();
-//  parser.parsingTable.printTable(); //Print the parsing table for DEBUG
+  // For debugging: print states and parsing table
+  //parser.printStates();
+  parser.getParsingTable().printTable();
 
-  std::vector<Token> tokens = tokenize("interrogate suspect about cop.");
+  std::string input;
+  while (true) {
+    std::cout << "Enter command (or 'exit' to quit):\n> ";
+    std::getline(std::cin, input);
+
+    if (input == "exit") break;
+
+    // Tokenize input
+    std::vector<Token> tokens = tokenize(input);
+
+    // Check for invalid tokens
+    bool valid = true;
+    for (const auto& token : tokens) {
+      if (token.type == INVALID && token.value != "") {
+        std::cerr << "Invalid token: " << token.value << "\n";
+        valid = false;
+        break;
+      }
+    }
+    if (!valid) continue;
+
+
+    // Parse the tokens
+    parser.parse(tokens);
+  }
 
   return 0;
 }

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 #include <cctype>
+#include <iostream>
 
 // Convert string to lowercase
 std::string toLowerCase(const std::string& str) {
@@ -148,17 +149,36 @@ Grammar::Grammar() {
         {"TERMINAL_PUNCTUATION", {"!"}},
         {"TERMINAL_PUNCTUATION", {"?"}}
     };
-    for (const auto&[lhs, rhs] : rules) {
-        nonTerminals.insert(lhs);
-        for (const auto& symbol : rhs) {
-            if (!nonTerminals.contains(symbol)) {
-                terminals.insert(symbol);
-            }
-        }
+    // First pass: Collect all non-terminals (LHS of rules)
+    for (const auto& rule : rules) {
+        nonTerminals.insert(rule.lhs);
     }
+
+    // Second pass: Identify terminals (explicit list + punctuation)
+    terminals = {
+        // Terminals from productions
+        "interrogate", "examine", "accuse",
+        "evidence", "suspect",
+        "about", "regarding",
+        "cop", "bat", "letter", "house", "window", "desk", "body",
+        // Punctuation
+        ".", "!", "?"
+    };
+
+    // Third pass: Build production map
     for (const auto& rule : rules) {
         productionMap[rule.lhs].push_back(rule.rhs);
+
+        // Sanity check: Ensure RHS symbols are classified correctly
+        for (const auto& symbol : rule.rhs) {
+            if (!nonTerminals.contains(symbol) &&
+                !terminals.contains(symbol) &&
+                symbol != "TERMINAL_PUNCTUATION") {
+                std::cerr << "Symbol '" << symbol << "' is neither terminal nor non-terminal!\n";
+                }
+        }
     }
+
     computeFollowSets();
 }
 

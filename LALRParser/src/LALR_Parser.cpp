@@ -14,10 +14,12 @@ LALRParser::LALRParser(const Grammar& grammar) : grammar(grammar) {
 }
 // Construct Augmented Grammar
 void LALRParser::constructAugmentedGrammar() {
-
-    // Copy all original grammar rules
-    for (const auto& rule : grammar.getRules()) {
-        augmentedGrammar.push_back(rule);
+    augmentedGrammar.clear();
+    // Add S' -> command production first
+    augmentedGrammar.push_back(grammar.getRules()[0]);
+    // Add remaining productions
+    for (size_t i = 1; i < grammar.getRules().size(); ++i) {
+        augmentedGrammar.push_back(grammar.getRules()[i]);
     }
 }
 
@@ -173,44 +175,87 @@ State LALRParser::computeGoto(const std::set<Item>& items, const std::string& sy
 }
 
 void LALRParser::createParser() {
-  this->createInitialState(); // Generate the initial state
+    this->createInitialState();
 
-  std::queue<State> unprocessedStates;
-  unprocessedStates.push(this->states[0]); // Start with the initial state
+    std::queue<State> unprocessedStates;
+    unprocessedStates.push(this->states[0]);
 
-  std::set<int> processedStateIds;
+    std::set<int> processedStateIds;
 
-  while (!unprocessedStates.empty()) {
-    State currentState = unprocessedStates.front();
-    unprocessedStates.pop();
+    while (!unprocessedStates.empty()) {
+        State currentState = unprocessedStates.front();
+        unprocessedStates.pop();
 
-    if (processedStateIds.find(currentState.id) != processedStateIds.end()) continue;
-    processedStateIds.insert(currentState.id);
+        if (processedStateIds.find(currentState.id) != processedStateIds.end()) continue;
+        processedStateIds.insert(currentState.id);
 
-    for (const auto& item : currentState.items) {
-      if (item.dotPosition < item.rhs.size()) {
-        const std::string& symbol = item.rhs[item.dotPosition];
-        State nextState = computeGoto(currentState.items, symbol);
+        for (const auto& item : currentState.items) {
+            if (item.dotPosition < item.rhs.size()) {
+                const std::string& symbol = item.rhs[item.dotPosition];
+                State nextState = computeGoto(currentState.items, symbol);
 
-        bool stateExists = false;
-        for (const auto& existingState : states) {
-          if (existingState.items == nextState.items) {
-            stateExists = true;
-            break;
-          }
+                bool stateExists = false;
+                for (const auto& existingState : states) {
+                    if (existingState.items == nextState.items) {
+                        stateExists = true;
+                        break;
+                    }
+                }
+
+                if (!stateExists) {
+                    nextState.id = states.size();
+                    this->states.push_back(nextState);
+                    unprocessedStates.push(nextState);
+                }
+            }
         }
-
-        if (!stateExists) {
-          nextState.id = states.size();
-          this->states.push_back(nextState);
-          unprocessedStates.push(nextState);
-        }
-      }
     }
-  }
 
-  // Merge states to create LALR(1) lookaheads
-  addLookahead();
+    // Merge states and build transitions
+    mergeStatesToLALR();
+
+    // After merging states, populate parsing table
+    for (const auto& state : states) {
+        // Add REDUCE and ACCEPT actions
+        for (const auto& item : state.items) {
+            if (item.dotPosition == item.rhs.size()) { // Dot at end
+                if (item.lhs == "S'") { // Accept action
+                    parsingTable.addAction(state.id, "$", "accept");
+                } else { // Reduce action
+                    // Find production index
+                    int prodIndex = -1;
+                    for (size_t i = 0; i < augmentedGrammar.size(); ++i) {
+                        if (augmentedGrammar[i].lhs == item.lhs &&
+                            augmentedGrammar[i].rhs == item.rhs) {
+                            prodIndex = static_cast<int>(i);
+                            break;
+                            }
+                    }
+                    if (prodIndex != -1) {
+                        for (const auto& la : item.lookahead) {
+                            parsingTable.addAction(state.id, la,
+                                "reduce " + std::to_string(prodIndex));
+                        }
+                    }
+                }
+            }
+        }
+
+
+        // Add SHIFT and GOTO actions from transitions
+        const auto& trans = transitions[state.id];
+        // Inside createParser()'s transition handling loop:
+        for (const auto& [symbol, targetState] : trans) {
+            if (grammar.isTerminal(symbol)) {
+                // Handle TERMINALS in ACTION table
+                parsingTable.addAction(state.id, symbol, "shift " + std::to_string(targetState));
+            } else if (grammar.isNonTerminal(symbol)) {
+                // Handle NON-TERMINALS in GOTO table
+                parsingTable.addGoto(state.id, symbol, targetState); // <-- THIS WAS MISSING
+            }
+        }
+
+    }
 }
 
 
@@ -365,8 +410,6 @@ std::string LALRParser::formatLookahead(const std::set<std::string>& lookahead) 
 }
 
 
-void LALRParser::parse(std::vector<Token> tokens) {}
-
 void LALRParser::addTransitions() {
   transitions.clear();
   transitions.resize(states.size());
@@ -391,4 +434,64 @@ void LALRParser::addTransitions() {
       }
     }
   }
+}
+
+void LALRParser::parse(std::vector<Token> tokens) {
+    std::vector<std::string> inputSymbols;
+    for (const auto& token : tokens) {
+        inputSymbols.push_back(token.type == END ? "$" : token.value);
+    }
+
+    std::vector<int> stateStack = {0};
+    size_t currentToken = 0;
+
+    while (currentToken < inputSymbols.size()) {
+        int currentState = stateStack.back();
+        std::string currentSymbol = inputSymbols[currentToken];
+        std::string action = parsingTable.getAction(currentState, currentSymbol);
+
+        if (currentToken == 3) {
+            std::cout<<"test fault"<<std::endl;
+        }
+
+        if (action.empty()) {
+            std::cerr << "Syntax error at token " << currentToken << " (" << currentSymbol << ")\n";
+            return;
+        }
+
+        if (action.rfind("shift ", 0) == 0) {
+            int nextState = std::stoi(action.substr(6));
+            stateStack.push_back(nextState);
+            currentToken++;
+        } else if (action.rfind("reduce ", 0) == 0) {
+            int prodIndex = std::stoi(action.substr(7));
+            const auto& rule = augmentedGrammar[prodIndex];
+            size_t rhsLen = rule.rhs.size();
+
+            if (stateStack.size() < rhsLen) {
+                std::cerr << "Stack underflow during reduce\n";
+                return;
+            }
+
+            for (size_t i = 0; i < rhsLen; ++i) stateStack.pop_back();
+
+            int newState = stateStack.back();
+            int gotoState = parsingTable.getGoto(newState, rule.lhs);
+
+            if (gotoState == -1) {
+                std::cerr << "Goto error after reducing " << rule.lhs << "\n";
+                return;
+            }
+
+            stateStack.push_back(gotoState);
+        } else if (action == "accept") {
+            std::cout << "Input parsed successfully!\n";
+            return;
+        } else {
+            std::cerr << "Unknown action: " << action << "\n";
+            return;
+        }
+    }
+
+    std::cerr << "Unexpected end of input\n";
 }
