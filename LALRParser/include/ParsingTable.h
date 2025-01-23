@@ -5,34 +5,36 @@
 #ifndef PARSING_TABLE_H
 #define PARSING_TABLE_H
 
-#include <map>
 #include <string>
+#include <map>
 #include <vector>
 #include <iostream>
 
-
 class ParsingTable {
 public:
-  ParsingTable() = default;
+  // Get the action for a given state and symbol
+  std::string getAction(int state, const std::string &symbol) const;
 
-  // Setters
-  void addAction(int state, const std::string& symbol, const std::string& action);
-  void addGoto(int state, const std::string& symbol, int nextState);
+  // Get the goto state for a given state and non-terminal
+  int getGoto(int state, const std::string &nonTerminal) const;
 
-  // Getters
-  [[nodiscard]] std::string getAction(int state, const std::string& symbol) const;
-  [[nodiscard]] int getGoto(int state, const std::string& symbol) const;
+  // Add an action entry to the parsing table
+  void addAction(int state, const std::string &symbol, const std::string &action);
 
-  // Debugging
+  // Add a goto entry to the parsing table
+  void addGoto(int state, const std::string &symbol, int nextState);
+
+  // Print the parsing table for debugging purposes
   void printTable() const;
 
 private:
-  // Action table: state -> (symbol -> action)
+  // Parsing table for actions: state -> (symbol -> action)
   std::map<int, std::map<std::string, std::string>> actionTable;
 
-  // Goto table: state -> (non-terminal -> next state)
+  // Parsing table for goto states: state -> (non-terminal -> next state)
   std::map<int, std::map<std::string, int>> gotoTable;
 };
+
 
 #endif // PARSING_TABLE_H
 
