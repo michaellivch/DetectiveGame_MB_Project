@@ -98,8 +98,9 @@ void PlayState::update(sf::RenderWindow& window, float deltaTime) {
         if (userInput.empty() && pda.isFinalState()){
           manager.set_active_state(manager.get_end());
         }
-        if (userInput.empty()){
+        if (userInput.empty() && !pda.isFinalState()){
           processInput("epsilon");
+          manager.set_active_state(manager.get_play());
         }
         if (!userInput.empty()) {
           processInput(userInput);
@@ -149,11 +150,12 @@ void PlayState::update(sf::RenderWindow& window, float deltaTime) {
   window.draw(inputText);
 
   if (!hoverString.empty()) {
-    hoverText.setString(hoverString);
-    hoverText.setPosition(mousePos.x/2, mousePos.y/2); // Position for state text
-
     // Get the bounding box of the text
     sf::FloatRect textBounds = hoverText.getGlobalBounds();
+
+    hoverText.setString(hoverString);
+    hoverText.setPosition(mousePos.x-(textBounds.width/2), mousePos.y-100.f); // Position for state text
+
 
     // Create a rectangle shape based on the text's size
     rectangle.setSize(sf::Vector2f(textBounds.width + 15.f, textBounds.height + 15.f)); // Add padding
