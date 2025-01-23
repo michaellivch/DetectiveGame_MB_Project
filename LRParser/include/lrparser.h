@@ -62,16 +62,18 @@ public:
     // Setters And Getters
     [[nodiscard]] State getInitialState() const;
     void addState(const State& state);
+    std::vector<State> getStates();
+    Grammar getGrammar();
 
     // Debug
     void printStates() const;
 
     // Lalr specific functions
     void addLookahead();
-
     std::string formatLookahead(const std::set<std::string>& lookahead) const;
     void printLALRStates() const;
     void mergeStatesToLALR();
+    void addTransitions();
     std::vector<std::map<std::string, int>> transitions;
 
 

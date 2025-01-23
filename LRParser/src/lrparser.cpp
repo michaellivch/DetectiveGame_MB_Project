@@ -222,6 +222,14 @@ void LRParser::addState(const State &state) {
     this->states.push_back(state);
 }
 
+std::vector<State> LRParser::getStates() {
+  return states;
+}
+
+Grammar LRParser::getGrammar() {
+  return grammar;
+}
+
 void LRParser::printStates() const {
   std::cout << "LALR(1) Automaton States:\n";
   for (const auto& state : states) {
@@ -285,13 +293,13 @@ void LRParser::addLookahead() {
   bool stop = false;
   for (auto &state : states) {
 
-    if (!stop) {
+    //if (!stop) {
       new_states.push_back(state);
-    }
+    //}
     for (const auto& item : state.items) {
       if (item.dotPosition == item.rhs.size() and item.lhs == "command") {
-        stop = true;
-        break;
+        //stop = true;
+        //break;
       }
     }
   }
@@ -299,6 +307,72 @@ void LRParser::addLookahead() {
   states = new_states;
 
 }
+
+
+void LRParser::mergeStatesToLALR() {
+  addTransitions();
+    std::map<std::set<Item>, std::vector<int>> kernelToStates;
+
+    // Group states by core items
+    for (const auto& state : states) {
+        std::set<Item> kernel;
+        for (const auto& item : state.items) {
+            Item coreItem = item;
+            coreItem.lookahead.clear();
+            kernel.insert(coreItem);
+        }
+        kernelToStates[kernel].push_back(state.id);
+    }
+
+    std::vector<State> mergedStates;
+    std::map<int, int> oldToNewStateMap;
+
+    for (const auto& [kernel, stateIDs] : kernelToStates) {
+        std::set<Item> mergedItems;
+
+        // Safely combine items
+        for (int stateID : stateIDs) {
+            const State& oldState = states.at(stateID);  // Use .at() for bounds checking
+            for (const auto& item : oldState.items) {
+                auto it = std::find_if(mergedItems.begin(), mergedItems.end(),
+                    [&item](const Item& existingItem) {
+                        return existingItem.lhs == item.lhs &&
+                               existingItem.rhs == item.rhs &&
+                               existingItem.dotPosition == item.dotPosition;
+                    });
+
+                if (it != mergedItems.end()) {
+                    Item mergedItem = *it;
+                    mergedItem.lookahead.insert(item.lookahead.begin(), item.lookahead.end());
+                    mergedItems.erase(it);
+                    mergedItems.insert(mergedItem);
+                } else {
+                    mergedItems.insert(item);
+                }
+            }
+        }
+
+        State newState = {static_cast<int>(mergedStates.size()), mergedItems};
+        mergedStates.push_back(newState);
+
+        for (int stateID : stateIDs) {
+            oldToNewStateMap[stateID] = newState.id;
+        }
+    }
+
+    // Update transitions safely
+    std::vector<std::map<std::string, int>> newTransitions(mergedStates.size());
+    for (size_t i = 0; i < states.size(); ++i) {
+        int newStateID = oldToNewStateMap.at(i);  // Use .at() for bounds checking
+        for (const auto& [symbol, targetStateID] : transitions.at(i)) {
+            newTransitions[newStateID][symbol] = oldToNewStateMap.at(targetStateID);
+        }
+    }
+
+    states = std::move(mergedStates);
+    transitions = std::move(newTransitions);
+}
+
 
 /*
 // Merge LR(1) States to Create LALR(1)
@@ -375,6 +449,7 @@ void LRParser::printLALRStates() const {
 }
 */
 
+
 // Helper to Format Lookahead Symbols for Debug
 std::string LRParser::formatLookahead(const std::set<std::string>& lookahead) const {
   std::string result = "";
@@ -382,4 +457,30 @@ std::string LRParser::formatLookahead(const std::set<std::string>& lookahead) co
     result += symbol + " ";
   }
   return result.empty() ? "{}" : result;
+}
+
+void LRParser::addTransitions() {
+  transitions.clear();
+  transitions.resize(states.size());
+
+  for (const auto& state : states) {
+    for (const auto& item : state.items) {
+      // If dot is not at the end, we can transition
+      if (item.dotPosition < item.rhs.size()) {
+        std::string symbol = item.rhs[item.dotPosition];
+
+        // Create a new item with dot moved forward
+        Item newItem = item;
+        newItem.dotPosition++;
+
+        // Find the target state
+        for (const auto& targetState : states) {
+          if (targetState.items.count(newItem) > 0) {
+            transitions[state.id][symbol] = targetState.id;
+            break;
+          }
+        }
+      }
+    }
+  }
 }
