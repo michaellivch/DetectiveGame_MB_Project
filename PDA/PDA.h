@@ -20,6 +20,7 @@ private:
         string nextState;
         string stackTop; //first which stack of the MPDA, then the symbol
         string image;
+        string message;
         vector<string> replacement = {};
     };
     string initialState;

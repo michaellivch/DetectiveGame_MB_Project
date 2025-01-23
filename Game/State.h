@@ -11,12 +11,12 @@
 // Forward declaration of StateManager
 class StateManager;
 
-class State {
+class GameState {
 protected:
   StateManager& manager; // Reference to the StateManager
 public:
-  explicit State(StateManager& manager) : manager(manager) {}
-  virtual ~State() = default;
+  explicit GameState(StateManager& manager) : manager(manager) {}
+  virtual ~GameState() = default;
 
   virtual void enter(sf::RenderWindow& window) = 0;  // Called when the state becomes active
   virtual void update(sf::RenderWindow& window, float deltaTime) = 0; // Logic updates
@@ -24,7 +24,7 @@ public:
 };
 
 
-class MainScreen : public State {
+class MainScreen : public GameState {
 private:
   sf::Text titleText;
   sf::Font font;
@@ -35,7 +35,7 @@ public:
   void exit(sf::RenderWindow& window) override;
 };
 
-class PlayState : public State {
+class PlayState : public GameState {
 private:
   PDA& pda;
   sf::Texture texture;
@@ -55,7 +55,7 @@ public:
   void exit(sf::RenderWindow& window) override;
 };
 
-class EndScreen : public State {
+class EndScreen : public GameState {
 private:
   sf::Text endText;
   sf::Font font;

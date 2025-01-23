@@ -9,12 +9,12 @@ find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 # Voeg je executabele toe
 add_executable(Game
         main.cpp
-        LRParser/src/cfg.cpp
-        LRParser/include/cfg.h
-        LRParser/src/parsing_table.cpp
-        LRParser/include/parsing_table.h
-        LRParser/src/lrparser.cpp
-        LRParser/include/lrparser.h
+        LALRParser/src/cfg.cpp
+        LALRParser/include/cfg.h
+        LALRParser/src/ParsingTable.cpp
+        LALRParser/include/ParsingTable.h
+        LALRParser/src/LALR_Parser.cpp
+        LALRParser/include/LALR_Parser.h
         PDA/PDA.cpp
         Game/StateManager.h
         Game/StateManager.cpp

@@ -2,18 +2,18 @@
 // Created by michael on 1/16/25.
 //
 
-#include "../include/lrparser.h"
-
+#include "../include/LALR_Parser.h"
+#include "../include/ParsingTable.h"
 #include <algorithm>
 
 
 // Constructor
-LRParser::LRParser(const Grammar& grammar) : grammar(grammar) {
+LALRParser::LALRParser(const Grammar& grammar) : grammar(grammar) {
     constructAugmentedGrammar();
     transitions = {}; // Initialize empty transitions
 }
 // Construct Augmented Grammar
-void LRParser::constructAugmentedGrammar() {
+void LALRParser::constructAugmentedGrammar() {
 
     // Copy all original grammar rules
     for (const auto& rule : grammar.getRules()) {
@@ -22,11 +22,11 @@ void LRParser::constructAugmentedGrammar() {
 }
 
 // Get Augmented Grammar
-const std::vector<GrammarRule>& LRParser::getAugmentedGrammar() const {
+const std::vector<GrammarRule>&LALRParser::getAugmentedGrammar() const {
     return augmentedGrammar;
 }
 
-void LRParser::createInitialState() {
+void LALRParser::createInitialState() {
     // Create the initial item (dot at the start of RHS)
     const std::string& lhs = this->augmentedGrammar[0].lhs;
     const std::vector<std::string>& rhs = this->augmentedGrammar[0].rhs;
@@ -43,7 +43,7 @@ void LRParser::createInitialState() {
     this->states.push_back(initialState);
 }
 
-std::set<Item> LRParser::computeClosure(const std::set<Item>& items) const {
+std::set<Item> LALRParser::computeClosure(const std::set<Item>& items) const {
   std::set<Item> closure = items;
 
   bool addedNewItem = true;
@@ -90,7 +90,7 @@ std::set<Item> LRParser::computeClosure(const std::set<Item>& items) const {
   return closure;
 }
 
-State LRParser::computeGoto(const std::set<Item>& items, const std::string& symbol) {
+State LALRParser::computeGoto(const std::set<Item>& items, const std::string& symbol) {
   /*
     // Debug: Log input items and symbol
     std::cout << "DEBUG: computeGoto called with symbol: " << symbol << "\n";
@@ -172,7 +172,7 @@ State LRParser::computeGoto(const std::set<Item>& items, const std::string& symb
     return newState;
 }
 
-void LRParser::createParser() {
+void LALRParser::createParser() {
   this->createInitialState(); // Generate the initial state
 
   std::queue<State> unprocessedStates;
@@ -214,23 +214,15 @@ void LRParser::createParser() {
 }
 
 
-State LRParser::getInitialState() const {
+State LALRParser::getInitialState() const {
     return states[0];
 }
 
-void LRParser::addState(const State &state) {
+void LALRParser::addState(const State &state) {
     this->states.push_back(state);
 }
 
-std::vector<State> LRParser::getStates() {
-  return states;
-}
-
-Grammar LRParser::getGrammar() {
-  return grammar;
-}
-
-void LRParser::printStates() const {
+void LALRParser::printStates() const {
   std::cout << "LALR(1) Automaton States:\n";
   for (const auto& state : states) {
     std::cout << "State ID: " << state.id << "\n";
@@ -251,7 +243,8 @@ void LRParser::printStates() const {
   }
 }
 
-void LRParser::addLookahead() {
+
+void LALRParser::addLookahead() {
   std::map<std::set<Item>, std::set<Item>> mergedStates;
 
   for (const auto& state : states) {
@@ -293,13 +286,13 @@ void LRParser::addLookahead() {
   bool stop = false;
   for (auto &state : states) {
 
-    //if (!stop) {
+    if (!stop) {
       new_states.push_back(state);
-    //}
+    }
     for (const auto& item : state.items) {
       if (item.dotPosition == item.rhs.size() and item.lhs == "command") {
-        //stop = true;
-        //break;
+        stop = true;
+        break;
       }
     }
   }
@@ -308,150 +301,8 @@ void LRParser::addLookahead() {
 
 }
 
-
-void LRParser::mergeStatesToLALR() {
-  addTransitions();
-    std::map<std::set<Item>, std::vector<int>> kernelToStates;
-
-    // Group states by core items
-    for (const auto& state : states) {
-        std::set<Item> kernel;
-        for (const auto& item : state.items) {
-            Item coreItem = item;
-            coreItem.lookahead.clear();
-            kernel.insert(coreItem);
-        }
-        kernelToStates[kernel].push_back(state.id);
-    }
-
-    std::vector<State> mergedStates;
-    std::map<int, int> oldToNewStateMap;
-
-    for (const auto& [kernel, stateIDs] : kernelToStates) {
-        std::set<Item> mergedItems;
-
-        // Safely combine items
-        for (int stateID : stateIDs) {
-            const State& oldState = states.at(stateID);  // Use .at() for bounds checking
-            for (const auto& item : oldState.items) {
-                auto it = std::find_if(mergedItems.begin(), mergedItems.end(),
-                    [&item](const Item& existingItem) {
-                        return existingItem.lhs == item.lhs &&
-                               existingItem.rhs == item.rhs &&
-                               existingItem.dotPosition == item.dotPosition;
-                    });
-
-                if (it != mergedItems.end()) {
-                    Item mergedItem = *it;
-                    mergedItem.lookahead.insert(item.lookahead.begin(), item.lookahead.end());
-                    mergedItems.erase(it);
-                    mergedItems.insert(mergedItem);
-                } else {
-                    mergedItems.insert(item);
-                }
-            }
-        }
-
-        State newState = {static_cast<int>(mergedStates.size()), mergedItems};
-        mergedStates.push_back(newState);
-
-        for (int stateID : stateIDs) {
-            oldToNewStateMap[stateID] = newState.id;
-        }
-    }
-
-    // Update transitions safely
-    std::vector<std::map<std::string, int>> newTransitions(mergedStates.size());
-    for (size_t i = 0; i < states.size(); ++i) {
-        int newStateID = oldToNewStateMap.at(i);  // Use .at() for bounds checking
-        for (const auto& [symbol, targetStateID] : transitions.at(i)) {
-            newTransitions[newStateID][symbol] = oldToNewStateMap.at(targetStateID);
-        }
-    }
-
-    states = std::move(mergedStates);
-    transitions = std::move(newTransitions);
-}
-
-
-/*
-// Merge LR(1) States to Create LALR(1)
-void LRParser::mergeStatesToLALR() {
-  // Map kernen (zonder lookahead) naar een lijst van LR(1)-state IDs
-  std::map<std::set<Item>, std::vector<int>> kernelToStates;
-  // Stap 1: Groepeer staten met dezelfde kern
-  for (const auto& state : states) {
-    // Maak een set van kernen (Items zonder lookahead)
-    std::set<Item> kernel;
-    for (const auto& item : state.items) {
-      Item coreItem = item;
-      coreItem.lookahead.clear(); // Verwijder lookahead voor kern
-      kernel.insert(coreItem);
-    }
-    kernelToStates[kernel].push_back(state.id);
-  }
-  // Stap 2: Combineer staten met identieke kernen
-  std::vector<State> mergedStates; // De nieuwe verzameling van LALR(1)-staten
-  std::map<int, int> oldToNewStateMap; // Map oude staten naar nieuwe staten
-  for (const auto& [kernel, stateIDs] : kernelToStates) {
-    // Combineer lookahead-symbolen van alle staten met dezelfde kern
-    std::set<Item> mergedItems = kernel;
-    for (int stateID : stateIDs) {
-      const State& oldState = states[stateID];
-      for (const auto& item : oldState.items) {
-        // Zoek hetzelfde kern-item en voeg lookahead-symbolen toe
-        auto it = mergedItems.find({item.lhs, item.rhs, item.dotPosition});
-        if (it != mergedItems.end()) {
-          Item mergedItem = *it;
-          mergedItem.lookahead.insert(item.lookahead.begin(), item.lookahead.end());
-          mergedItems.erase(it);
-          mergedItems.insert(mergedItem);
-        }
-      }
-    }
-    // Maak een nieuwe samengevoegde staat
-    State newState = {static_cast<int>(mergedStates.size()), mergedItems};
-    mergedStates.push_back(newState);
-    // Update mapping van oude staten naar de nieuwe staat
-    for (int stateID : stateIDs) {
-      oldToNewStateMap[stateID] = newState.id;
-    }
-  }
-  // Stap 3: Update overgangen
-  std::vector<std::map<std::string, int>> newTransitions(mergedStates.size());
-  for (size_t i = 0; i < states.size(); ++i) {
-    int newStateID = oldToNewStateMap[i];
-    for (const auto& [symbol, targetStateID] : transitions[i]) {
-      newTransitions[newStateID][symbol] = oldToNewStateMap[targetStateID];
-    }
-  }
-  // Stap 4: Vervang de oude staten en overgangen
-  states = std::move(mergedStates);
-  transitions = std::move(newTransitions);
-}
-
-// Debug Print for LALR(1) Automaton
-void LRParser::printLALRStates() const {
-  std::cout << "LALR(1) Automaton States:\n";
-  for (const auto& state : states) {
-    std::cout << "State ID: " << state.id << "\n";
-    for (const auto& item : state.items) {
-      std::cout << "  " << item.lhs << " -> ";
-      for (size_t i = 0; i < item.rhs.size(); ++i) {
-        if (i == item.dotPosition) std::cout << "•";
-        std::cout << item.rhs[i] << " ";
-      }
-      if (item.dotPosition == item.rhs.size()) std::cout << "•";
-      std::cout << " {" << formatLookahead(item.lookahead) << "}\n";
-    }
-    std::cout << "\n";
-  }
-}
-*/
-
-
 // Helper to Format Lookahead Symbols for Debug
-std::string LRParser::formatLookahead(const std::set<std::string>& lookahead) const {
+std::string LALRParser::formatLookahead(const std::set<std::string>& lookahead) const {
   std::string result = "";
   for (const auto& symbol : lookahead) {
     result += symbol + " ";
@@ -459,28 +310,5 @@ std::string LRParser::formatLookahead(const std::set<std::string>& lookahead) co
   return result.empty() ? "{}" : result;
 }
 
-void LRParser::addTransitions() {
-  transitions.clear();
-  transitions.resize(states.size());
 
-  for (const auto& state : states) {
-    for (const auto& item : state.items) {
-      // If dot is not at the end, we can transition
-      if (item.dotPosition < item.rhs.size()) {
-        std::string symbol = item.rhs[item.dotPosition];
-
-        // Create a new item with dot moved forward
-        Item newItem = item;
-        newItem.dotPosition++;
-
-        // Find the target state
-        for (const auto& targetState : states) {
-          if (targetState.items.count(newItem) > 0) {
-            transitions[state.id][symbol] = targetState.id;
-            break;
-          }
-        }
-      }
-    }
-  }
-}
+void LALRParser::parse(std::vector<Token> tokens) {}

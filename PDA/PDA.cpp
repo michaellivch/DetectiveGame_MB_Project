@@ -30,7 +30,8 @@ PDA::PDA(const string& jsonfile){
         T.nextState = transitions["to"];
         T.input = transitions["input"];
         T.stackTop = transitions["stacktop"];
-        T.image = transitions["image"];
+        T.image = transitions["imageReplacement"];
+        T.message = transitions["textReplacement"];
         for (const auto& replacementsymbol : transitions["replacement"]){
             T.replacement.push_back(replacementsymbol);
         }
@@ -44,7 +45,8 @@ PDA::PDA(const string& jsonfile){
     }
 
     stacks["MainStack"].push_back(stackInitialState);
-    stacks["ImageStack"] = {"../Assets/Scenes/house.jpg"}; // Kan leeg beginnen
+    stacks["ImageStack"] = {"../Assets/Scenes/house.jpg"};
+    stacks["TextStack"] = {"You have been called to go investigate a murder"};
 }
 
 bool PDA::processInput(const string& input) {
@@ -61,6 +63,7 @@ bool PDA::processInput(const string& input) {
         stacks[transition.stack].push_back(*it);
       }
       stacks["ImageStack"] = {transition.image};
+      stacks["TextStack"] = {transition.message};
       // Verander de huidige status
       currentState = transition.nextState;
       // Debugging: toon nieuwe stack en status
