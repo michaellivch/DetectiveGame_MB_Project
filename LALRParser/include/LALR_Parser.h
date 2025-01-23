@@ -69,6 +69,8 @@ public:
 
     // Lalr specific functions
     void addLookahead();
+    void addTransitions();
+    void mergeStatesToLALR();
 
     [[nodiscard]] std::string formatLookahead(const std::set<std::string>& lookahead) const;
     std::vector<std::map<std::string, int>> transitions;
