@@ -26,6 +26,9 @@ class MainScreen : public GameState {
 private:
   sf::Text titleText;
   sf::Font font;
+
+  sf::Texture bg_texture_;
+  sf::Sprite bg;
 public:
   explicit MainScreen(StateManager& manager);
   void enter(sf::RenderWindow& window) override;

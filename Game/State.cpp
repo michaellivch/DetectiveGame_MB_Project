@@ -11,21 +11,33 @@ MainScreen::MainScreen(StateManager& manager) : GameState(manager) {
     std::cerr << "Error: Could not load font for MainScreen.\n";
   }
 
+  if (!bg_texture_.loadFromFile("../Assets/Scenes/main_screen.jpg")) {
+    std::cerr << "Error: Could not load main_screen.jpg\n";
+  }
+
+  bg.setTexture(bg_texture_);
+
+  /*
   titleText.setFont(font);
   titleText.setCharacterSize(50);
   titleText.setString("Welcome to Detective Game\nPress Enter to Start");
   titleText.setPosition(50, 200);
+  */
 }
 
 void MainScreen::enter(sf::RenderWindow& window) {
   // Reset or initialize elements if necessary
+  bg.setScale(window.getSize().x / static_cast<float>(bg_texture_.getSize().x),
+(window.getSize().y ) / static_cast<float>(bg_texture_.getSize().y)
+);
 }
 
 void MainScreen::update(sf::RenderWindow& window, float deltaTime) {
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
     manager.set_active_state(manager.get_play());
   }
-  window.draw(titleText);
+  window.draw(bg);
+  //window.draw(titleText);
 }
 
 void MainScreen::exit(sf::RenderWindow& window) {
@@ -97,6 +109,8 @@ void PlayState::update(sf::RenderWindow& window, float deltaTime) {
       } else if (event.text.unicode == '\r' || event.text.unicode == '\n') { // Enter key
         if (userInput.empty() && pda.isFinalState()){
           manager.set_active_state(manager.get_end());
+          pda.reset();
+          break;
         }
         if (userInput.empty() && !pda.isFinalState()){
           processInput("epsilon");
@@ -211,6 +225,7 @@ EndScreen::EndScreen(StateManager& manager) : GameState(manager) {
 
 void EndScreen::enter(sf::RenderWindow& window) {
   std::cout << "EndScreen entered.\n";
+
 }
 
 void EndScreen::update(sf::RenderWindow& window, float deltaTime) {
@@ -219,7 +234,7 @@ void EndScreen::update(sf::RenderWindow& window, float deltaTime) {
     if (event.type == sf::Event::Closed) {
       window.close();
     }
-    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
+    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
       manager.set_active_state(manager.get_menu());
     }
   }
