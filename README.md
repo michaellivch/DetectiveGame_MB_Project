@@ -1,6 +1,6 @@
 # **Detective Game Parser**
 
-This project implements a custom **LR Parser** to validate and process inputs for a detective game. The parser uses a **context-free grammar (CFG)** to define the structure of commands and gameplay scripts, ensuring they adhere to the game's rules.
+This project implements a custom **LALR Parser** to validate and process inputs for a detective game. The parser uses a **context-free grammar (CFG)** to define the structure of commands and gameplay scripts, ensuring they adhere to the game's rules.
 
 ---
 

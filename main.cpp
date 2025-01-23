@@ -1,5 +1,5 @@
-#include "LRParser/include/LALR_Parser.h"
-#include "LRParser/include/cfg.h"
+#include "LALRParser/include/LALR_Parser.h"
+#include "LALRParser/include/cfg.h"
 #include <iostream>
 
 int main() {
