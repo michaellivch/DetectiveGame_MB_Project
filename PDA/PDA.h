@@ -23,8 +23,9 @@ private:
         string image;
         string message;
         vector<string> replacement = {};
-        string topic;
         string target;
+        vector<string> topic = {};  // Changed from string to vector<string>
+
     };
     string initialState;
     vector<Transition> transitionTable;

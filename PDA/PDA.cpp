@@ -33,7 +33,9 @@ PDA::PDA(const string& jsonfile){
         T.image = transitions["imageReplacement"];
         T.message = transitions["textReplacement"];
         T.target = transitions["target"];
-        T.topic = transitions["topic"];
+        for (const auto& topic : transitions["topic"]) {
+          T.topic.push_back(topic);
+        }
         for (const auto& replacementsymbol : transitions["replacement"]){
             T.replacement.push_back(replacementsymbol);
         }
@@ -51,13 +53,13 @@ PDA::PDA(const string& jsonfile){
     stacks["TextStack"] = {"You have been called to go investigate a murder"};
 }
 
-
 bool PDA::processInput(const string& target, const string& topic) {
-  // First check epsilon transitions
+  // Check epsilon transitions
   if (target == "epsilon" && topic == "epsilon") {
     for (const auto& transition : transitionTable) {
+      bool isEpsilonTopic = (find(transition.topic.begin(), transition.topic.end(), "epsilon") != transition.topic.end());
       if (transition.target == "epsilon" &&
-          transition.topic == "epsilon" &&
+          isEpsilonTopic &&
           transition.currentState == currentState &&
           !stacks[transition.stack].empty() &&
           stacks[transition.stack].back() == transition.stackTop) {
@@ -76,11 +78,12 @@ bool PDA::processInput(const string& target, const string& topic) {
     }
   }
 
-  // Check tokenized transitions
+  // Check regular transitions
   for (const auto& transition : transitionTable) {
+    bool topicMatches = (find(transition.topic.begin(), transition.topic.end(), topic) != transition.topic.end());
     if (transition.currentState == currentState &&
         transition.target == target &&
-        transition.topic == topic &&
+        topicMatches &&
         !stacks[transition.stack].empty() &&
         stacks[transition.stack].back() == transition.stackTop) {
 
@@ -191,8 +194,8 @@ std::vector<std::pair<sf::FloatRect, std::string>> PDA::getHoverRegions() {
   }
   else if (currentImage.find("../Assets/Scenes/room_where_wife.png") != std::string::npos) {
     regions = {
-        {sf::FloatRect(256, 633, 465-256, 656-633), "Take bat for safety"},
-        {sf::FloatRect(274, 258, 353-274, 515-258), "Blame wife for murder"}
+        {sf::FloatRect(256, 633, 465-256, 656-633), "Take bat for safety."},
+        {sf::FloatRect(274, 258, 353-274, 515-258), "Blame wife for murder."}
     };
   }
   return regions;
