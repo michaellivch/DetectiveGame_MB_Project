@@ -60,6 +60,9 @@ PlayState::PlayState(StateManager& manager, PDA& pda)
   hoverText.setFont(font);
   hoverText.setCharacterSize(24);
   hoverText.setFillColor(sf::Color::White);
+
+  // Set the fill color to light yellow
+  rectangle.setFillColor(sf::Color(128, 128, 128));
 }
 
 // Enter state
@@ -101,6 +104,7 @@ void PlayState::update(sf::RenderWindow& window, float deltaTime) {
         if (!userInput.empty()) {
           processInput(userInput);
           userInput.clear();
+          manager.set_active_state(manager.get_play());
         }
       } else if (event.text.unicode < 128) { // Valid character
         userInput += static_cast<char>(event.text.unicode);
@@ -146,7 +150,16 @@ void PlayState::update(sf::RenderWindow& window, float deltaTime) {
 
   if (!hoverString.empty()) {
     hoverText.setString(hoverString);
-    hoverText.setPosition(mousePos.x, mousePos.y); // Position for state text
+    hoverText.setPosition(mousePos.x/2, mousePos.y/2); // Position for state text
+
+    // Get the bounding box of the text
+    sf::FloatRect textBounds = hoverText.getGlobalBounds();
+
+    // Create a rectangle shape based on the text's size
+    rectangle.setSize(sf::Vector2f(textBounds.width + 15.f, textBounds.height + 15.f)); // Add padding
+    rectangle.setPosition(textBounds.left - 10.f, textBounds.top - 10.f);
+    window.draw(rectangle);
+
     window.draw(hoverText);
   }
 

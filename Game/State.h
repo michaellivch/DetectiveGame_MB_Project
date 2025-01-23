@@ -47,6 +47,8 @@ private:
   std::string userInput;
   std::vector<std::pair<sf::FloatRect, std::string>> hoverRegions;
 
+  sf::RectangleShape rectangle;
+
   std::string stackToString(const std::vector<std::string>& stack) const;
 public:
   PlayState(StateManager& manager, PDA& pda);
