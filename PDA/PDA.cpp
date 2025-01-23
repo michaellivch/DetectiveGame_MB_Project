@@ -152,12 +152,27 @@ std::vector<std::pair<sf::FloatRect, std::string>> PDA::getHoverRegions() {
         {sf::FloatRect(345, 350, 420-345, 470-350), "Ask information about body."},
     };
   }
-  else if (currentImage.find("body.png") != std::string::npos) {
+  else if (currentImage.find("../Assets/Scenes/inside.png") != std::string::npos) {
     regions = {
-        {sf::FloatRect(50, 50, 100, 50), "Head Injury"},
-        {sf::FloatRect(200, 300, 150, 100), "Blood Pool"}
+        {sf::FloatRect(0, 377, 183, 401-377), "Desk"},
+        {sf::FloatRect(265, 139, 500-265, 380-139), "Window"},
+        {sf::FloatRect(30, 512, 352-30, 677-512), "body"}
     };
   }
-
+  else if (currentImage.find("../Assets/Scenes/paper_on_desk.png") != std::string::npos) {
+    regions = {
+        {sf::FloatRect(101, 208, 531-101, 666-208), "Letter"},
+    };
+  }
+  else if (currentImage.find("../Assets/Scenes/room_where_wife.png") != std::string::npos) {
+    regions = {
+        {sf::FloatRect(256, 633, 465-256, 656-633), "take bat"},
+        {sf::FloatRect(274, 258, 353-274, 515-258), "suspect"}
+    };
+  }
   return regions;
+}
+
+void PDA::setCurrentState(){
+    currentState = initialState;
 }
