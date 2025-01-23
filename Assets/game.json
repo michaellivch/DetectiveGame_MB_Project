@@ -6,32 +6,30 @@
     "take_the_bat", "arrest_her", "die"
   ],
   "Stacks": ["MainStack", "ImageStack", "TextStack"],
-  "Alphabet": ["0", "1", "2"],
+  "Alphabet": ["0", "1", "2", "epsilon"],
   "StackAlphabet": ["Z0", "Z1", "Z2", "Bat"],
   "Transitions": [
+    { "from": "arrive_at_house", "input": "0", "target": "information", "topic": "body", "stacktop": "Z0", "to": "ask_for_info", "stack": "MainStack", "replacement": ["Z0"], "imageReplacement": "../Assets/Scenes/info.png" , "textReplacement": "Cop: I was the first on the scene and it was a gruesome\nsight" },
+    { "from": "arrive_at_house", "input": "1", "target": "evidence", "topic": "murder", "stacktop": "Z0", "to": "go_inside", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/inside.png","textReplacement": "Time to go and investigate the crime scene" },
+    { "from": "arrive_at_house", "input": "2", "target": "suspect", "topic": "husband", "stacktop": "Z0", "to": "talk_to_wife", "stack": "MainStack", "replacement": ["Z0"], "imageReplacement": "../Assets/Scenes/talk_wife.png","textReplacement": "Wife: When I came home from work, I found my husband\ndead" },
+    { "from": "ask_for_info", "input": "epsilon", "target": "epsilon", "topic": "epsilon", "stacktop": "Z0", "to": "arrive_at_house", "stack": "MainStack", "replacement": ["Z0"], "imageReplacement": "../Assets/Scenes/house.jpg", "textReplacement": "You have been called to go investigate a murder"},
+    { "from": "talk_to_wife", "input": "epsilon", "target": "epsilon", "topic": "epsilon", "stacktop": "Z0", "to": "arrive_at_house", "stack": "MainStack", "replacement": ["Z0"], "imageReplacement": "../Assets/Scenes/house.jpg", "textReplacement": "You have been called to go investigate a murder"},
 
-    { "from": "arrive_at_house", "input": "0", "stacktop": "Z0", "to": "ask_for_info", "stack": "MainStack", "replacement": ["Z0"], "imageReplacement": "../Assets/Scenes/info.png" , "textReplacement": "Cop: I was the first on the scene and it was a gruesome\nsight" },
-    { "from": "arrive_at_house", "input": "1", "stacktop": "Z0", "to": "go_inside", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/inside.png","textReplacement": "Time to go and investigate the crime scene" },
-    { "from": "arrive_at_house", "input": "2", "stacktop": "Z0", "to": "talk_to_wife", "stack": "MainStack", "replacement": ["Z0"], "imageReplacement": "../Assets/Scenes/talk_wife.png","textReplacement": "Wife: When I came home from work, I found my husband\ndead" },
-    { "from": "ask_for_info", "input": "epsilon", "stacktop": "Z0", "to": "arrive_at_house", "stack": "MainStack", "replacement": ["Z0"], "imageReplacement": "../Assets/Scenes/house.jpg", "textReplacement": "You have been called to go investigate a murder"},
-    { "from": "talk_to_wife", "input": "epsilon", "stacktop": "Z0", "to": "arrive_at_house", "stack": "MainStack", "replacement": ["Z0"], "imageReplacement": "../Assets/Scenes/house.jpg", "textReplacement": "You have been called to go investigate a murder"},
+    { "from": "go_inside", "input": "0", "target": "desk", "topic": "clues", "stacktop": "Z1", "to": "examine_desk", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/paper_on_desk.png" , "textReplacement": "What is laying there on the desk?" },
+    { "from": "go_inside", "input": "1", "target": "window", "topic": "clues", "stacktop": "Z1", "to": "examine_window", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/window.png" , "textReplacement": "The glass seems to have been broken by a gun shot,\nbut it does not seem it was a break-in"},
+    { "from": "go_inside", "input": "2", "target": "body", "topic": "clues", "stacktop": "Z1", "to": "examine_body", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/body.png" , "textReplacement": "It seems the person has been killed with a blunt object" },
+    { "from": "examine_window", "input": "epsilon", "target": "epsilon", "topic": "epsilon", "stacktop": "Z1", "to": "go_inside", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/inside.png","textReplacement": "Time to go and investigate the crime scene" },
+    { "from": "examine_body", "input": "epsilon", "target": "epsilon", "topic": "epsilon", "stacktop": "Z1", "to": "go_inside", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/inside.png","textReplacement": "Time to go and investigate the crime scene" },
 
-    { "from": "go_inside", "input": "0", "stacktop": "Z1", "to": "examine_desk", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/paper_on_desk.png" , "textReplacement": "What is laying there on the desk?" },
-    { "from": "go_inside", "input": "1", "stacktop": "Z1", "to": "examine_window", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/window.png" , "textReplacement": "The glass seems to have been broken by a gun shot,\nbut it does not seem it was a break-in"},
-    { "from": "go_inside", "input": "2", "stacktop": "Z1", "to": "examine_body", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/body.png" , "textReplacement": "It seems the person has been killed with a blunt object" },
-    { "from": "examine_window", "input": "epsilon", "stacktop": "Z1", "to": "go_inside", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/inside.png","textReplacement": "Time to go and investigate the crime scene" },
-    { "from": "examine_body", "input": "epsilon", "stacktop": "Z1", "to": "go_inside", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/inside.png","textReplacement": "Time to go and investigate the crime scene" },
-    { "from": "examine_desk", "input": "0", "stacktop": "Z1", "to": "go_inside", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/inside.png", "textReplacement": "Time to go and investigate the crime scene" },
+    { "from": "examine_desk", "input": "1", "target": "letter", "topic": "divorce", "stacktop": "Z1", "to": "examine_paper_on_desk", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/paper_contents.jpg" ,"textReplacement": "It was the wife, who killed her husband!" },
+    { "from": "examine_paper_on_desk", "input": "epsilon", "target": "epsilon", "topic": "epsilon", "stacktop": "Z1", "to": "room_where_wife_is", "stack": "MainStack", "replacement": ["Z2"], "imageReplacement": "../Assets/Scenes/room_where_wife.png","textReplacement": "Time to go and confront her!" },
 
-    { "from": "examine_desk", "input": "1", "stacktop": "Z1", "to": "examine_paper_on_desk", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/paper_on_desk.png" ,"textReplacement": "It was the wife, who killed her husband!" },
-    { "from": "examine_paper_on_desk", "input": "epsilon", "stacktop": "Z1", "to": "room_where_wife_is", "stack": "MainStack", "replacement": ["Z2"], "imageReplacement": "../Assets/Scenes/room_where_wife.png","textReplacement": "Time to go and confront her!" },
+    { "from": "room_where_wife_is", "input": "0", "target": "wife", "topic": "murder", "stacktop": "Z2", "to": "talk_to_wife", "stack": "MainStack", "replacement": ["Z2"], "imageReplacement": "../Assets/Scenes/talk_wife_again.png", "textReplacement": "You killed your husband !" },
+    { "from": "room_where_wife_is", "input": "1", "target": "bat", "topic": "safety", "stacktop": "Z2", "to": "take_the_bat", "stack": "MainStack", "replacement": ["Bat"], "imageReplacement": "../Assets/Scenes/take_bat.png", "textReplacement": "Let me take this bat, just to be safe"},
+    { "from": "take_the_bat", "input": "epsilon", "target": "epsilon", "topic": "epsilon", "stacktop": "Bat", "to": "talk_to_wife", "stack": "MainStack", "replacement": ["Bat"], "imageReplacement": "../Assets/Scenes/talk_wife_bat.png","textReplacement": "You murdered your husband!" },
 
-    { "from": "room_where_wife_is", "input": "0", "stacktop": "Z2", "to": "talk_to_wife", "stack": "MainStack", "replacement": ["Z2"], "imageReplacement": "../Assets/Scenes/talk_wife_again.png", "textReplacement": "You killed your husband !" },
-    { "from": "room_where_wife_is", "input": "1", "stacktop": "Z2", "to": "take_the_bat", "stack": "MainStack", "replacement": ["Bat"], "imageReplacement": "../Assets/Scenes/take_bat.png", "textReplacement": "Let me take this bat, just to be safe"},
-    { "from": "take_the_bat", "input": "epsilon", "stacktop": "Bat", "to": "talk_to_wife", "stack": "MainStack", "replacement": ["Bat"], "imageReplacement": "../Assets/Scenes/talk_wife_bat.png","textReplacement": "You murdered your husband!" },
-
-    { "from": "talk_to_wife", "input": "epsilon", "stacktop": "Bat", "to": "arrest_her", "stack": "MainStack", "replacement": ["Bat"], "imageReplacement": "../Assets/Scenes/arrest.png", "textReplacement": "Yes, I did because I was going to lose all his money..."},
-    { "from": "talk_to_wife", "input": "epsilon", "stacktop": "Z2", "to": "die", "stack": "MainStack", "replacement": [], "imageReplacement": "../Assets/Scenes/die.png","textReplacement": "Yes, but you will never tell anyone!" }
+    { "from": "talk_to_wife", "input": "epsilon", "target": "epsilon", "topic": "epsilon", "stacktop": "Bat", "to": "arrest_her", "stack": "MainStack", "replacement": ["Bat"], "imageReplacement": "../Assets/Scenes/arrest.png", "textReplacement": "Yes, I did because I was going to lose all his money..."},
+    { "from": "talk_to_wife", "input": "epsilon", "target": "epsilon", "topic": "epsilon", "stacktop": "Z2", "to": "die", "stack": "MainStack", "replacement": [], "imageReplacement": "../Assets/Scenes/die.png","textReplacement": "Yes, but you will never tell anyone!" }
   ],
   "AcceptStates": ["arrest_her", "die"],
   "StartState": "arrive_at_house",

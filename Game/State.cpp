@@ -49,7 +49,7 @@ void MainScreen::exit(sf::RenderWindow& window) {
 
 // Constructor
 PlayState::PlayState(StateManager& manager, PDA& pda)
-    : GameState(manager), pda(pda), userInput("") {
+    : GameState(manager), pda(pda), userInput(""), grammar(), parser(grammar) {
   if (!font.loadFromFile("../Assets/font.ttf")) {
     std::cerr << "Error: Could not load font.\n";
   }
@@ -75,6 +75,9 @@ PlayState::PlayState(StateManager& manager, PDA& pda)
 
   // Set the fill color to light yellow
   rectangle.setFillColor(sf::Color(128, 128, 128));
+
+  parser.createParser();
+
 }
 
 // Enter state
@@ -113,11 +116,17 @@ void PlayState::update(sf::RenderWindow& window, float deltaTime) {
           break;
         }
         if (userInput.empty() && !pda.isFinalState()){
-          processInput("epsilon");
+          processInput("epsilon", "epsilon");
           manager.set_active_state(manager.get_play());
         }
         if (!userInput.empty()) {
-          processInput(userInput);
+          auto tokens = tokenize(userInput);
+          auto parsingSucces = parser.parse(tokens);
+          if (parsingSucces){
+            Token target = tokens[1];
+            Token topic = tokens[3];
+            processInput(target.value, topic.value);
+          }
           userInput.clear();
           manager.set_active_state(manager.get_play());
         }
@@ -138,8 +147,6 @@ void PlayState::update(sf::RenderWindow& window, float deltaTime) {
   }
   stateText.setString(pda.getStack("TextStack")[0]);
 
-  //std::cout<<hoverRegions[0].first.getPosition().x<<" "<<hoverRegions[0].first.getPosition().y<<std::endl;
-  std::cout<<mousePos.x<<" "<<mousePos.y<<std::endl;
 
   std::string hoverString;
   for (const auto& [rect, text] : hoverRegions) {
@@ -188,8 +195,8 @@ void PlayState::exit(sf::RenderWindow& window) {
 }
 
 // Process user input
-void PlayState::processInput(const std::string& input) {
-  if (!pda.processInput(input)) {
+void PlayState::processInput(const std::string& target, const std::string& topic) {
+  if (!pda.processInput(target,topic)) {
     std::cerr << "Invalid transition.\n";
     return;
   }
@@ -214,18 +221,18 @@ std::string PlayState::stackToString(const std::vector<std::string>& stack) cons
 
 // ---- EndScreen Class ----
 EndScreen::EndScreen(StateManager& manager) : GameState(manager) {
-  if (!font.loadFromFile("../Assets/font.ttf")) {
-    std::cerr << "Error: Could not load font for EndScreen.\n";
+  if (!bg_texture_.loadFromFile("../Assets/Scenes/end_screen.jpg")) {
+    std::cerr << "Error: Could not load main_screen.jpg\n";
   }
-  endText.setFont(font);
-  endText.setCharacterSize(50);
-  endText.setString("Game Over\nPress Enter to Return to Menu");
-  endText.setPosition(50, 200);
+
+  bg.setTexture(bg_texture_);
+
 }
 
 void EndScreen::enter(sf::RenderWindow& window) {
-  std::cout << "EndScreen entered.\n";
-
+  bg.setScale(window.getSize().x / static_cast<float>(bg_texture_.getSize().x),
+              (window.getSize().y ) / static_cast<float>(bg_texture_.getSize().y)
+  );
 }
 
 void EndScreen::update(sf::RenderWindow& window, float deltaTime) {
@@ -238,7 +245,7 @@ void EndScreen::update(sf::RenderWindow& window, float deltaTime) {
       manager.set_active_state(manager.get_menu());
     }
   }
-  window.draw(endText);
+  window.draw(bg);
 }
 
 

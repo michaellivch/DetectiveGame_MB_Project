@@ -23,6 +23,8 @@ private:
         string image;
         string message;
         vector<string> replacement = {};
+        string topic;
+        string target;
     };
     string initialState;
     vector<Transition> transitionTable;
@@ -39,7 +41,7 @@ public:
     PDA(const string& jsonfile);
     string getNextState(const string& currentState, const string& input, const string& stackTop);
     string getState(string input);
-    bool processInput(const string& input);
+    bool processInput(const string& target, const string& topic);
     string getCurrentState() const;
     vector<string> getStack(const string& stackName) const;
     vector<Transition> getTransitions();
@@ -47,7 +49,6 @@ public:
     bool hasEpsilonTransition() const;
     std::vector<std::pair<sf::FloatRect, std::string>> getHoverRegions();
     void reset();
-
 };
 
 

@@ -77,7 +77,7 @@ public:
     std::vector<std::map<std::string, int>> transitions;
 
     //Parsing Algorithm
-    void parse(std::vector<Token> tokens);
+    bool parse(std::vector<Token> tokens);
 
 
 private:

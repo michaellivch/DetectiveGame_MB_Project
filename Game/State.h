@@ -8,6 +8,8 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include "../PDA/PDA.h"
+#include "../LALRParser/include/cfg.h"
+#include "../LALRParser/include/LALR_Parser.h"
 // Forward declaration of StateManager
 class StateManager;
 
@@ -38,7 +40,6 @@ public:
 
 class PlayState : public GameState {
 private:
-  PDA& pda;
   sf::Texture texture;
   sf::Sprite sprite;
   sf::Font font;
@@ -47,15 +48,20 @@ private:
   sf::Text inputText;
   sf::Text hoverText;
   sf::RectangleShape inputBar;
-  std::string userInput;
   std::vector<std::pair<sf::FloatRect, std::string>> hoverRegions;
-
   sf::RectangleShape rectangle;
 
+  PDA& pda;
+
+  std::string userInput;
+  Grammar grammar;
+  LALRParser parser;
+
   std::string stackToString(const std::vector<std::string>& stack) const;
+
 public:
   PlayState(StateManager& manager, PDA& pda);
-  void processInput(const std::string& input);
+  void processInput(const std::string& target, const std::string& topic);
   void enter(sf::RenderWindow& window) override;
   void update(sf::RenderWindow& window, float deltaTime) override;
   void exit(sf::RenderWindow& window) override;
@@ -65,6 +71,9 @@ class EndScreen : public GameState {
 private:
   sf::Text endText;
   sf::Font font;
+
+  sf::Texture bg_texture_;
+  sf::Sprite bg;
 public:
   explicit EndScreen(StateManager& manager);
   void enter(sf::RenderWindow& window) override;

@@ -433,8 +433,7 @@ void LALRParser::addTransitions() {
   }
 }
 
-void LALRParser::parse(std::vector<Token> tokens) {
-
+bool LALRParser::parse(std::vector<Token> tokens) {
 
     std::vector<std::string> inputSymbols;
     for (const auto& token : tokens) {
@@ -453,12 +452,12 @@ void LALRParser::parse(std::vector<Token> tokens) {
 
         if (currentToken == 5) {
             std::cout << "Input parsed successfully!\n";
-            return;
+            return true;
         }
 
         if (action.empty()) {
             std::cerr << "Syntax error at token " << currentToken << " (" << currentSymbol << ")\n";
-            return;
+            return false;
         }
 
         if (action.rfind("shift ", 0) == 0) {
@@ -472,7 +471,7 @@ void LALRParser::parse(std::vector<Token> tokens) {
 
             if (stateStack.size() < rhsLen) {
                 std::cerr << "Stack underflow during reduce\n";
-                return;
+                return false;
             }
 
             for (size_t i = 0; i < rhsLen; ++i) stateStack.pop_back();
@@ -482,16 +481,16 @@ void LALRParser::parse(std::vector<Token> tokens) {
 
             if (gotoState == -1) {
                 std::cerr << "Goto error after reducing " << rule.lhs << "\n";
-                return;
+                return false;
             }
 
             stateStack.push_back(gotoState);
         } else if (action == "accept") {
             std::cout << "Input parsed successfully!\n";
-            return;
+            return true;
         } else {
             std::cerr << "Unknown action: " << action << "\n";
-            return;
+            return false;
         }
     }
 

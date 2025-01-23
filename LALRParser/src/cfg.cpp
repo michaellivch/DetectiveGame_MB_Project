@@ -42,9 +42,9 @@ double similarityPercentage(const std::string& s1, const std::string& s2) {
 // Tokenizer function
 std::vector<Token> tokenize(const std::string& input) {
     const std::map<std::string, TokenType> keywords = {
-        {"interrogate", ACTION}, {"examine", ACTION}, {"accuse", ACTION},
-        {"suspect", TARGET}, {"evidence", TARGET},
-        {"about", PREPOSITION}, {"regarding", PREPOSITION},
+        {"interrogate", ACTION}, {"examine", ACTION}, {"accuse", ACTION}, {"ask", ACTION}, {"investigate", ACTION}, {"blame", ACTION}, {"take", ACTION},
+        {"suspect", TARGET}, {"evidence", TARGET}, {"information", TARGET}, {"window", TARGET}, {"desk", TARGET}, {"body", TARGET}, {"letter", TARGET}, {"wife", TARGET}, {"bat", TARGET},
+        {"about", PREPOSITION}, {"regarding", PREPOSITION}, {"for", PREPOSITION},
         {".", TERMINAL_PUNCTUATION}, {"!", TERMINAL_PUNCTUATION}, {"?", TERMINAL_PUNCTUATION},
         {"the", ARTICLE}, {"a", ARTICLE}
     };
@@ -132,19 +132,31 @@ Grammar::Grammar() {
         {"command", {"action", "target", "preposition", "topic", "TERMINAL_PUNCTUATION"}},
         {"action", {"interrogate"}},
         {"action", {"examine"}},
+        {"action", {"ask"}},
         {"action", {"accuse"}},
+        {"action", {"investigate"}},
+        {"action", {"blame"}},
+        {"action", {"take"}},
         {"target", {"suspect"}},
         {"target", {"evidence"}},
+        {"target", {"information"}},
+        {"target", {"suspect"}},
+        {"target", {"window"}},
+        {"target", {"desk"}},
+        {"target", {"body"}},
+        {"target", {"letter"}},
+        {"target", {"wife"}},
+        {"target", {"bat"}},
         {"preposition", {"about"}},
         {"preposition", {"regarding"}},
+        {"preposition", {"for"}},
         {"topic", {"cop"}},
-        {"topic", {"bat"}},
         {"topic", {"house"}},
-        {"topic", {"suspect"}},
-        {"topic", {"window"}},
-        {"topic", {"desk"}},
-        {"topic", {"body"}},
-        {"topic", {"letter"}},
+        {"topic", {"divorce"}},
+        {"topic", {"husband"}},
+        {"topic", {"murder"}},
+        {"topic", {"clues"}},
+        {"topic", {"safety"}},
         {"TERMINAL_PUNCTUATION", {"."}},
         {"TERMINAL_PUNCTUATION", {"!"}},
         {"TERMINAL_PUNCTUATION", {"?"}}
@@ -157,10 +169,10 @@ Grammar::Grammar() {
     // Second pass: Identify terminals (explicit list + punctuation)
     terminals = {
         // Terminals from productions
-        "interrogate", "examine", "accuse",
-        "evidence", "suspect",
-        "about", "regarding",
-        "cop", "bat", "letter", "house", "window", "desk", "body",
+        "interrogate", "examine", "accuse", "ask", "investigate", "blame", "take",
+        "evidence", "suspect", "information", "window", "desk", "body", "wife", "bat",
+        "about", "regarding", "for",
+        "cop", "letter", "house", "husband", "murder", "clues", "divorce", "safety",
         // Punctuation
         ".", "!", "?"
     };
