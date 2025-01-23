@@ -143,9 +143,11 @@ std::vector<std::pair<sf::FloatRect, std::string>> PDA::getHoverRegions() {
   std::vector<std::pair<sf::FloatRect, std::string>> regions;
   std::string currentImage = stacks.at("ImageStack")[0];
 
+  float offset = 50.f;
+
   if (currentImage.find("../Assets/Scenes/house.jpg") != std::string::npos) {
     regions = {
-        {sf::FloatRect(0, 0, 800, 600), "Investigate Scene"} // Full image hover
+        {sf::FloatRect(170, 300, 200, 200), "Interrogate suspect about body."},
     };
   }
   else if (currentImage.find("body.png") != std::string::npos) {

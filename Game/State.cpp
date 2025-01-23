@@ -56,6 +56,10 @@ PlayState::PlayState(StateManager& manager, PDA& pda)
   stateText.setCharacterSize(24);
   stateText.setFillColor(sf::Color::White);
   stateText.setPosition(10, 10); // Position for state text
+
+  hoverText.setFont(font);
+  hoverText.setCharacterSize(24);
+  hoverText.setFillColor(sf::Color::White);
 }
 
 // Enter state
@@ -115,10 +119,14 @@ void PlayState::update(sf::RenderWindow& window, float deltaTime) {
   }
   stateText.setString(pda.getStack("TextStack")[0]);
 
+  //std::cout<<hoverRegions[0].first.getPosition().x<<" "<<hoverRegions[0].first.getPosition().y<<std::endl;
+  std::cout<<mousePos.x<<" "<<mousePos.y<<std::endl;
+
   std::string hoverString;
   for (const auto& [rect, text] : hoverRegions) {
-    if (rect.contains(spritePos)) {
+    if (mousePos.x > rect.left && mousePos.x < rect.width+rect.left && mousePos.y > rect.top && mousePos.y < rect.height+rect.top) {
       hoverString = text;
+      std::cout << "Hover String: " << hoverString << std::endl;
       break;
     }
   }
@@ -138,7 +146,7 @@ void PlayState::update(sf::RenderWindow& window, float deltaTime) {
 
   if (!hoverString.empty()) {
     hoverText.setString(hoverString);
-    hoverText.setPosition(worldPos.x + 15, worldPos.y);
+    hoverText.setPosition(mousePos.x, mousePos.y); // Position for state text
     window.draw(hoverText);
   }
 
