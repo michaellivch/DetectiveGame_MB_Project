@@ -46,7 +46,7 @@ public:
     bool isFinalState() const;
     bool hasEpsilonTransition() const;
     std::vector<std::pair<sf::FloatRect, std::string>> getHoverRegions();
-    void setCurrentState();
+    void reset();
 
 };
 

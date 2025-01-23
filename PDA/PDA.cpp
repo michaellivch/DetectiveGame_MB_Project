@@ -173,6 +173,9 @@ std::vector<std::pair<sf::FloatRect, std::string>> PDA::getHoverRegions() {
   return regions;
 }
 
-void PDA::setCurrentState(){
-    currentState = initialState;
+void PDA::reset() {
+  currentState = initialState;
+  stacks["MainStack"] = {stackInitialState};
+  stacks["ImageStack"] = {"../Assets/Scenes/house.jpg"};
+  stacks["TextStack"] = {"You have been called to go investigate a"};
 }
