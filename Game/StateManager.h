@@ -10,22 +10,21 @@
 #include "State.h"
 #include "memory"
 // Forward declaration of State
-class State;
 
 class StateManager {
 private:
-  std::vector<std::shared_ptr<State>> states; // Holds all the states
-  std::shared_ptr<State> active_state;       // Currently active state
+  std::vector<std::shared_ptr<GameState>> states; // Holds all the states
+  std::shared_ptr<GameState> active_state;       // Currently active state
   sf::RenderWindow& window;                  // Reference to the main window
 
 public:
   explicit StateManager(sf::RenderWindow& window) : window(window) {}
 
-  void add_state(const std::shared_ptr<State>& state) {
+  void add_state(const std::shared_ptr<GameState>& state) {
     states.push_back(state);
   }
 
-  void set_active_state(const std::shared_ptr<State>& state) {
+  void set_active_state(const std::shared_ptr<GameState>& state) {
     if (active_state) {
       active_state->exit(window); // Exit the current state
     }
@@ -35,15 +34,15 @@ public:
     }
   }
 
-  std::shared_ptr<State> get_menu() {
+  std::shared_ptr<GameState> get_menu() {
     return (states.size() > 0) ? states[0] : nullptr;
   }
 
-  std::shared_ptr<State> get_play() {
+  std::shared_ptr<GameState> get_play() {
     return (states.size() > 1) ? states[1] : nullptr;
   }
 
-  std::shared_ptr<State> get_end() {
+  std::shared_ptr<GameState> get_end() {
     return (states.size() > 2) ? states[2] : nullptr;
   }
 

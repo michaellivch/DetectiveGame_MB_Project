@@ -6,7 +6,7 @@
 // Already defined in header. No additional implementation needed here.
 
 // ---- MainScreen Class ----
-MainScreen::MainScreen(StateManager& manager) : State(manager) {
+MainScreen::MainScreen(StateManager& manager) : GameState(manager) {
   if (!font.loadFromFile("../Assets/font.ttf")) {
     std::cerr << "Error: Could not load font for MainScreen.\n";
   }
@@ -37,29 +37,25 @@ void MainScreen::exit(sf::RenderWindow& window) {
 
 // Constructor
 PlayState::PlayState(StateManager& manager, PDA& pda)
-    : State(manager), pda(pda), userInput("") {
+    : GameState(manager), pda(pda), userInput("") {
   if (!font.loadFromFile("../Assets/font.ttf")) {
     std::cerr << "Error: Could not load font.\n";
   }
-
-  // Initialize Text
-  stateText.setFont(font);
-  stateText.setCharacterSize(24);
-  stateText.setPosition(10, 10);
-
-  stackText.setFont(font);
-  stackText.setCharacterSize(24);
-  stackText.setPosition(10, 50);
-
   inputText.setFont(font);
   inputText.setCharacterSize(24);
   inputText.setFillColor(sf::Color::White);
-  inputText.setPosition(10, 513); // Position for input text
+  inputText.setPosition(10, 683); // Position for input text
 
   // Initialize Input Bar
-  inputBar.setSize(sf::Vector2f(500, 50));
+  inputBar.setSize(sf::Vector2f(600, 50));
   inputBar.setFillColor(sf::Color(50, 50, 50));
-  inputBar.setPosition(0, 500); // Bar at the bottom
+  inputBar.setPosition(0, 675); // Bar at the bottom
+
+  // Initialize State Text
+  stateText.setFont(font);
+  stateText.setCharacterSize(24);
+  stateText.setFillColor(sf::Color::White);
+  stateText.setPosition(10, 10); // Position for state text
 }
 
 // Enter state
@@ -68,9 +64,10 @@ void PlayState::enter(sf::RenderWindow& window) {
   if (!texture.loadFromFile(pda.getStack("ImageStack")[0])) {
     std::cerr << "Error: Could not load initial image from PDA.\n";
   }
+  sprite.setPosition(0,75);
   sprite.setScale(
 window.getSize().x / static_cast<float>(texture.getSize().x),
-(window.getSize().y - 50) / static_cast<float>(texture.getSize().y)
+(window.getSize().y - 125) / static_cast<float>(texture.getSize().y)
   );
   sprite.setTexture(texture);
 }
@@ -104,16 +101,12 @@ void PlayState::update(sf::RenderWindow& window, float deltaTime) {
       }
     }
   }
-
-  // Update UI elements
-  stateText.setString("Current State: " + pda.getCurrentState());
-  stackText.setString("Stack: " + stackToString(pda.getStack("MainStack")));
   if (pda.hasEpsilonTransition() || pda.isFinalState()) {
     inputText.setString("Press Enter to Continue");
   } else {
     inputText.setString(userInput);
   }
-
+  stateText.setString(pda.getStack("TextStack")[0]);
   // Draw everything
   window.clear();
 
@@ -160,7 +153,7 @@ std::string PlayState::stackToString(const std::vector<std::string>& stack) cons
 
 
 // ---- EndScreen Class ----
-EndScreen::EndScreen(StateManager& manager) : State(manager) {
+EndScreen::EndScreen(StateManager& manager) : GameState(manager) {
   if (!font.loadFromFile("../Assets/font.ttf")) {
     std::cerr << "Error: Could not load font for EndScreen.\n";
   }
