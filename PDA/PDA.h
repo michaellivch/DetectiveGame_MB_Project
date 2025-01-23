@@ -4,9 +4,10 @@
 
 #ifndef CFG_PDA_H
 #define CFG_PDA_H
-#include "vector"
-#include "string"
 #include "map"
+#include "string"
+#include "vector"
+#include <SFML/Graphics.hpp>
 using namespace std;
 class PDA {
 
@@ -44,6 +45,8 @@ public:
     vector<Transition> getTransitions();
     bool isFinalState() const;
     bool hasEpsilonTransition() const;
+    std::vector<std::pair<sf::FloatRect, std::string>> getHoverRegions();
+
 };
 
 

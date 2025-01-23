@@ -70,6 +70,8 @@ window.getSize().x / static_cast<float>(texture.getSize().x),
 (window.getSize().y - 125) / static_cast<float>(texture.getSize().y)
   );
   sprite.setTexture(texture);
+  hoverRegions = pda.getHoverRegions();
+
 }
 
 // Update state
@@ -101,12 +103,27 @@ void PlayState::update(sf::RenderWindow& window, float deltaTime) {
       }
     }
   }
+
+  sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+  sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
+  sf::Vector2f spritePos = sprite.getInverseTransform().transformPoint(worldPos);
+
   if (pda.hasEpsilonTransition() || pda.isFinalState()) {
     inputText.setString("Press Enter to Continue");
   } else {
     inputText.setString(userInput);
   }
   stateText.setString(pda.getStack("TextStack")[0]);
+
+  std::string hoverString;
+  for (const auto& [rect, text] : hoverRegions) {
+    if (rect.contains(spritePos)) {
+      hoverString = text;
+      break;
+    }
+  }
+
+
   // Draw everything
   window.clear();
 
@@ -118,6 +135,12 @@ void PlayState::update(sf::RenderWindow& window, float deltaTime) {
   window.draw(stackText);
   window.draw(inputBar);
   window.draw(inputText);
+
+  if (!hoverString.empty()) {
+    hoverText.setString(hoverString);
+    hoverText.setPosition(worldPos.x + 15, worldPos.y);
+    window.draw(hoverText);
+  }
 
   window.display();
 }

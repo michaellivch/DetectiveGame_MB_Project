@@ -137,3 +137,23 @@ bool PDA::hasEpsilonTransition() const {
   }
   return false;
 }
+
+
+std::vector<std::pair<sf::FloatRect, std::string>> PDA::getHoverRegions() {
+  std::vector<std::pair<sf::FloatRect, std::string>> regions;
+  std::string currentImage = stacks.at("ImageStack")[0];
+
+  if (currentImage.find("../Assets/Scenes/house.jpg") != std::string::npos) {
+    regions = {
+        {sf::FloatRect(0, 0, 800, 600), "Investigate Scene"} // Full image hover
+    };
+  }
+  else if (currentImage.find("body.png") != std::string::npos) {
+    regions = {
+        {sf::FloatRect(50, 50, 100, 50), "Head Injury"},
+        {sf::FloatRect(200, 300, 150, 100), "Blood Pool"}
+    };
+  }
+
+  return regions;
+}
