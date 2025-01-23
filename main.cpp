@@ -11,7 +11,7 @@ int main() {
   parser.createParser();
 
   // For debugging: print states and parsing table
-  //parser.printStates();
+  parser.printStates();
   parser.getParsingTable().printTable();
 
   std::string input;

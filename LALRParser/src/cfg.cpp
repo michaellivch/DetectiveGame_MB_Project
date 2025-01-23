@@ -215,6 +215,46 @@ bool Grammar::isNonTerminal(const std::string& symbol) const {
     return nonTerminals.contains(symbol);
 }
 
+std::set<std::string> Grammar::computeFirst(const std::vector<std::string>& symbols) const {
+    std::set<std::string> firstSet;
+
+    for (const auto& symbol : symbols) {
+        if (isTerminal(symbol)) {
+            firstSet.insert(symbol);
+            break;
+        } else if (isNonTerminal(symbol)) {
+            const auto& productions = productionMap.at(symbol);
+            bool hasEpsilon = false;
+
+            // Process all productions to collect FIRST terminals
+            for (const auto& production : productions) {
+                auto firstOfProduction = computeFirst(production);
+                bool productionHasEpsilon = firstOfProduction.count("epsilon") > 0;
+
+                // Add terminals from this production's FIRST
+                for (const auto& s : firstOfProduction) {
+                    if (s != "epsilon") firstSet.insert(s);
+                }
+
+                // Track if any production can derive epsilon
+                if (productionHasEpsilon) hasEpsilon = true;
+            }
+
+            // If no production derives epsilon, stop further symbol processing
+            if (!hasEpsilon) break;
+
+            // Add epsilon if all symbols so far can derive epsilon
+            firstSet.insert("epsilon");
+        }
+
+        // Stop if current symbol doesn't contribute epsilon
+        if (!firstSet.count("epsilon")) break;
+        firstSet.erase("epsilon"); // Remove epsilon to check next symbol
+    }
+
+    return firstSet;
+}
+
 void Grammar::computeFollowSets() {
     for (const auto& nonTerminal : nonTerminals) {
         followSets[nonTerminal] = {};
@@ -231,17 +271,41 @@ void Grammar::computeFollowSets() {
                 const std::string& symbol = rhs[i];
                 if (isNonTerminal(symbol)) {
                     std::set<std::string> followSet;
+
+                    // Case 1: Symbol is followed by something
                     if (i + 1 < rhs.size()) {
                         std::string nextSymbol = rhs[i + 1];
                         if (isTerminal(nextSymbol)) {
                             followSet.insert(nextSymbol);
                         } else {
-                            followSet.insert(terminals.begin(), terminals.end());
+                            // Add FIRST of nextSymbol (non-terminal), excluding epsilon
+                            auto& productions = productionMap.at(nextSymbol);
+                            for (const auto& prod : productions) {
+                                auto first = computeFirst(prod);
+                                followSet.insert(first.begin(), first.end());
+                            }
+                            followSet.erase("epsilon");
+
+                            // If FIRST contains epsilon, add FOLLOW of lhs
+                            bool hasEpsilon = false;
+                            for (const auto& prod : productions) {
+                                if (prod.empty() || (prod.size() == 1 && prod[0] == "epsilon")) {
+                                    hasEpsilon = true;
+                                    break;
+                                }
+                            }
+                            if (hasEpsilon) {
+                                followSet.insert(followSets[lhs].begin(), followSets[lhs].end());
+                            }
                         }
                     }
+
+                    // Case 2: Symbol is at the end of production
                     if (i + 1 == rhs.size()) {
                         followSet.insert(followSets[lhs].begin(), followSets[lhs].end());
                     }
+
+                    // Update the follow set for the symbol
                     size_t oldSize = followSets[symbol].size();
                     followSets[symbol].insert(followSet.begin(), followSet.end());
                     if (followSets[symbol].size() > oldSize) {
@@ -256,3 +320,4 @@ void Grammar::computeFollowSets() {
 const std::set<std::string>& Grammar::getFollowSet(const std::string& nonTerminal) const {
     return followSets.at(nonTerminal);
 }
+

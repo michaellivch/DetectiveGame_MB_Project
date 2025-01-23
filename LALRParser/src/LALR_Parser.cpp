@@ -29,67 +29,64 @@ const std::vector<GrammarRule>&LALRParser::getAugmentedGrammar() const {
 }
 
 void LALRParser::createInitialState() {
-    // Create the initial item (dot at the start of RHS)
+    // Create the initial item (dot at start of RHS) with lookahead "$"
     const std::string& lhs = this->augmentedGrammar[0].lhs;
     const std::vector<std::string>& rhs = this->augmentedGrammar[0].rhs;
-    Item initialItem = {lhs, rhs, 0};
+    Item initialItem = {lhs, rhs, 0, {"$"}}; // <-- Add "$" here
 
-    // Compute the closure for the initial item
+    // Compute closure for the initial item
     std::set<Item> initialItems = {initialItem};
     std::set<Item> closureItems = computeClosure(initialItems);
 
     // Create the initial state
     State initialState = {static_cast<int>(this->states.size()), closureItems};
-
-    // Add the state to the list of states
     this->states.push_back(initialState);
 }
 
 std::set<Item> LALRParser::computeClosure(const std::set<Item>& items) const {
-  std::set<Item> closure = items;
+    std::cout << "=== Computing Closure ===" << std::endl;
+    std::set<Item> closure = items;
+    bool added;
+    do {
+        added = false;
+        for (const Item& item : closure) {
+            if (item.dotPosition >= item.rhs.size()) continue;
+            std::string B = item.rhs[item.dotPosition];
+            if (!grammar.isNonTerminal(B)) continue;
 
-  bool addedNewItem = true;
-  while (addedNewItem) {
-    addedNewItem = false;
+            // Get symbols after the dot (beta)
+            std::vector<std::string> beta(item.rhs.begin() + item.dotPosition + 1, item.rhs.end());
+            std::set<std::string> firstBeta = grammar.computeFirst(beta);
 
-    for (const auto& item : closure) {
-      if (item.dotPosition < item.rhs.size()) {
-        const std::string& symbolAfterDot = item.rhs[item.dotPosition];
+            // Check if beta can derive epsilon
+            bool hasEpsilon = firstBeta.erase("epsilon") > 0;
 
-        if (grammar.isNonTerminal(symbolAfterDot)) {
-          const auto& productions = grammar.getProductionMap().at(symbolAfterDot);
-
-          for (const auto& production : productions) {
-            // Compute lookaheads for the new item
-            std::set<std::string> newLookahead;
-
-            // Get the symbols after the current dot position
-            std::vector<std::string> nextSymbols(
-                item.rhs.begin() + item.dotPosition + 1, item.rhs.end());
-
-            // Compute FIRST(nextSymbols)
-            auto firstSet = grammar.computeFirst(nextSymbols);
-
-            // Include the item's lookahead if epsilon is in FIRST(nextSymbols)
-            if (firstSet.contains("epsilon")) {
-              firstSet.erase("epsilon");
-              newLookahead.insert(item.lookahead.begin(), item.lookahead.end());
+            // Propagate lookaheads correctly (only terminals)
+            std::set<std::string> validLookaheads;
+            for (const auto& la : item.lookahead) {
+                if (grammar.isTerminal(la)) validLookaheads.insert(la);
             }
-            newLookahead.insert(firstSet.begin(), firstSet.end());
 
-            Item newItem = {symbolAfterDot, production, 0, newLookahead};
+            for (const auto& prod : grammar.getProductionMap().at(B)) {
+                Item newItem{B, prod, 0, {}};
+                // Add terminals from FIRST(beta)
+                for (const auto& sym : firstBeta) {
+                    if (grammar.isTerminal(sym)) newItem.lookahead.insert(sym);
+                }
+                // Add valid lookaheads if beta derives epsilon
+                if (hasEpsilon) {
+                    newItem.lookahead.insert(validLookaheads.begin(), validLookaheads.end());
+                }
+                newItem.lookahead.erase("epsilon");
 
-            if (closure.find(newItem) == closure.end()) {
-              closure.insert(newItem);
-              addedNewItem = true;
+                if (!closure.count(newItem)) {
+                    closure.insert(newItem);
+                    added = true;
+                }
             }
-          }
         }
-      }
-    }
-  }
-
-  return closure;
+    } while (added);
+    return closure;
 }
 
 State LALRParser::computeGoto(const std::set<Item>& items, const std::string& symbol) {
@@ -437,10 +434,14 @@ void LALRParser::addTransitions() {
 }
 
 void LALRParser::parse(std::vector<Token> tokens) {
+
+
     std::vector<std::string> inputSymbols;
     for (const auto& token : tokens) {
+        // Map END token to "$"
         inputSymbols.push_back(token.type == END ? "$" : token.value);
     }
+    inputSymbols.push_back("$"); // Explicitly add "$" at the end
 
     std::vector<int> stateStack = {0};
     size_t currentToken = 0;
@@ -450,8 +451,9 @@ void LALRParser::parse(std::vector<Token> tokens) {
         std::string currentSymbol = inputSymbols[currentToken];
         std::string action = parsingTable.getAction(currentState, currentSymbol);
 
-        if (currentToken == 3) {
-            std::cout<<"test fault"<<std::endl;
+        if (currentToken == 5) {
+            std::cout << "Input parsed successfully!\n";
+            return;
         }
 
         if (action.empty()) {
