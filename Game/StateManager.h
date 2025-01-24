@@ -19,33 +19,11 @@ private:
 
 public:
   explicit StateManager(sf::RenderWindow& window) : window(window) {}
-
-  void add_state(const std::shared_ptr<GameState>& state) {
-    states.push_back(state);
-  }
-
-  void set_active_state(const std::shared_ptr<GameState>& state) {
-    if (active_state) {
-      active_state->exit(window); // Exit the current state
-    }
-    active_state = state;
-    if (active_state) {
-      active_state->enter(window); // Enter the new state
-    }
-  }
-
-  std::shared_ptr<GameState> get_menu() {
-    return (states.size() > 0) ? states[0] : nullptr;
-  }
-
-  std::shared_ptr<GameState> get_play() {
-    return (states.size() > 1) ? states[1] : nullptr;
-  }
-
-  std::shared_ptr<GameState> get_end() {
-    return (states.size() > 2) ? states[2] : nullptr;
-  }
-
+  void add_state(const std::shared_ptr<GameState>& state);
+  void set_active_state(const std::shared_ptr<GameState>& state);
+  std::shared_ptr<GameState> get_menu();
+  std::shared_ptr<GameState> get_play();
+  std::shared_ptr<GameState> get_end();
   void run(); // Main game loop
 };
 

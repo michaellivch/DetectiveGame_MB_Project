@@ -8,18 +8,6 @@
 #include "PDA/PDA.h"
 
 int main() {
-
-  Grammar grammar = Grammar(); // Assume this is initialized
-  LALRParser parser(grammar);
-
-  parser.createParser();
-  parser.printStates();
-
-
-  std::vector<Token> tokens = tokenize("ask information regarding body.");
-  parser.parse(tokens);
-
-
   sf::RenderWindow window(sf::VideoMode(600, 725), "Detective Game");
   // Create PDA instance
   PDA pda("../Assets/game.json");
@@ -37,6 +25,5 @@ int main() {
   manager.set_active_state(mainScreen);
   // Run the game loop
   manager.run();
-
   return 0;
 }

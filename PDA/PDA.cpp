@@ -177,7 +177,7 @@ std::vector<std::pair<sf::FloatRect, std::string>> PDA::getHoverRegions() {
     regions = {
         {sf::FloatRect(170, 300, 250-170, 370-300), "Ask suspect about husband."},
         {sf::FloatRect(260, 320, 310-260, 400-320), "Examine evidence about murder."},
-        {sf::FloatRect(345, 350, 420-345, 470-350), "Ask information about body."},
+        {sf::FloatRect(345, 350, 420-345, 470-350), "Ask information about murder."},
     };
   }
   else if (currentImage.find("../Assets/Scenes/inside.png") != std::string::npos) {

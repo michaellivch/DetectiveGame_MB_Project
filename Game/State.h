@@ -21,7 +21,6 @@ public:
   virtual ~GameState() = default;
   virtual void enter(sf::RenderWindow& window) = 0;
   virtual void update(sf::RenderWindow& window, float deltaTime) = 0;
-  virtual void exit(sf::RenderWindow& window) = 0;
 };
 
 class MainScreen : public GameState {
@@ -35,7 +34,6 @@ public:
   explicit MainScreen(StateManager& manager);
   void enter(sf::RenderWindow& window) override;
   void update(sf::RenderWindow& window, float deltaTime) override;
-  void exit(sf::RenderWindow& window) override;
 };
 
 class PlayState : public GameState {
@@ -57,14 +55,11 @@ private:
   Grammar grammar;
   LALRParser parser;
 
-  std::string stackToString(const std::vector<std::string>& stack) const;
-
 public:
   PlayState(StateManager& manager, PDA& pda);
   void processInput(const std::string& target, const std::string& topic);
   void enter(sf::RenderWindow& window) override;
   void update(sf::RenderWindow& window, float deltaTime) override;
-  void exit(sf::RenderWindow& window) override;
 };
 
 class EndScreen : public GameState {
@@ -78,7 +73,6 @@ public:
   explicit EndScreen(StateManager& manager);
   void enter(sf::RenderWindow& window) override;
   void update(sf::RenderWindow& window, float deltaTime) override;
-  void exit(sf::RenderWindow& window) override;
 };
 
 #endif // DETECTIVEGAME_MB_PROJECT_STATE_H

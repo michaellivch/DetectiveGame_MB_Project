@@ -63,7 +63,7 @@ public:
     // Setters And Getters
     [[nodiscard]] State getInitialState() const;
     void addState(const State& state);
-    const ParsingTable& getParsingTable() const { return parsingTable; }
+    [[nodiscard]] const ParsingTable& getParsingTable() const { return parsingTable; }
 
     // Debug
     void printStates() const;

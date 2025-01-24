@@ -44,7 +44,6 @@ void LALRParser::createInitialState() {
 }
 
 std::set<Item> LALRParser::computeClosure(const std::set<Item>& items) const {
-    std::cout << "=== Computing Closure ===" << std::endl;
     std::set<Item> closure = items;
     bool added;
     do {
@@ -318,7 +317,7 @@ void LALRParser::mergeStatesToLALR() {
     // Update transitions safely
     std::vector<std::map<std::string, int>> newTransitions(mergedStates.size());
     for (size_t i = 0; i < states.size(); ++i) {
-        int newStateID = oldToNewStateMap.at(i);  // Use .at() for bounds checking
+        int newStateID = oldToNewStateMap.at(i);
         for (const auto& [symbol, targetStateID] : transitions.at(i)) {
             newTransitions[newStateID][symbol] = oldToNewStateMap.at(targetStateID);
         }
@@ -493,6 +492,6 @@ bool LALRParser::parse(std::vector<Token> tokens) {
             return false;
         }
     }
-
     std::cerr << "Unexpected end of input\n";
+    return false;
 }

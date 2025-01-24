@@ -13,7 +13,7 @@
 class ParsingTable {
 public:
   // Get the action for a given state and symbol
-  std::string getAction(int state, const std::string &symbol) const;
+  [[nodiscard]] std::string getAction(int state, const std::string &symbol) const;
 
   // Get the goto state for a given state and non-terminal
   int getGoto(int state, const std::string &nonTerminal) const;

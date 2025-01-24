@@ -9,7 +9,7 @@
   "Alphabet": ["0", "1", "2", "epsilon"],
   "StackAlphabet": ["Z0", "Z1", "Z2", "Bat"],
   "Transitions": [
-    { "from": "arrive_at_house", "input": "0", "target": "information", "topic": ["husband","murder"], "stacktop": "Z0", "to": "ask_for_info", "stack": "MainStack", "replacement": ["Z0"], "imageReplacement": "../Assets/Scenes/info.png" , "textReplacement": "Cop: I was the first on the scene and it was a gruesome\nsight" },
+    { "from": "arrive_at_house", "input": "0", "target": "information", "topic": ["husband","murder"], "stacktop": "Z0", "to": "ask_for_info", "stack": "MainStack", "replacement": ["Z0"], "imageReplacement": "../Assets/Scenes/info.png" , "textReplacement": "Cop: I was the first on the scene and it was a gruesome\nsight, I found somebody's husband dead on the floor!" },
     { "from": "arrive_at_house", "input": "1", "target": "evidence", "topic": ["husband","murder"], "stacktop": "Z0", "to": "go_inside", "stack": "MainStack", "replacement": ["Z1"], "imageReplacement": "../Assets/Scenes/inside.png","textReplacement": "Time to go and investigate the crime scene" },
     { "from": "arrive_at_house", "input": "2", "target": "suspect", "topic": ["husband","murder"], "stacktop": "Z0", "to": "talk_to_wife", "stack": "MainStack", "replacement": ["Z0"], "imageReplacement": "../Assets/Scenes/talk_wife.png","textReplacement": "Wife: When I came home from work, I found my husband\ndead" },
     { "from": "ask_for_info", "input": "epsilon", "target": "epsilon", "topic": ["epsilon"], "stacktop": "Z0", "to": "arrive_at_house", "stack": "MainStack", "replacement": ["Z0"], "imageReplacement": "../Assets/Scenes/house.jpg", "textReplacement": "You have been called to go investigate a murder"},
