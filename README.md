@@ -139,7 +139,7 @@ The parser ensures the following:
 ## **Screenshots and Examples**
 
 ### **Example Scene**
-![](Assets/house.jpg)
+![Alt Text](Assets/house.jpg)
 - **Player Task:** Examine clues to identify evidence.
 - **Hint:** "Examine evidence about murder."
 - **Player Input:** "Examine evidence about husband."
